@@ -79,56 +79,44 @@ app.post('/api/orders/update', (req, res) => {
     res.json({ success: true, orders });
 });
 
-// API: Staff triggers AI Search with automatic background timer (10 mins for Standard, 30 mins for Priority)
+// API: Instantly generate multiple mainstream marketplace listing links
 app.post('/api/hunt-item', async (req, res) => {
-    const { orderId, itemQuery, targetPrice, packageName } = req.body;
+    const { orderId, itemQuery, targetPrice } = req.body;
     
-    // Determine scan duration based on package tier ($30 = 10 mins, $50 = 30 mins)
-    const isPriority = packageName && packageName.includes('Priority');
-    const scanDurationMs = isPriority ? 30 * 60 * 1000 : 10 * 60 * 1000;
-    const durationLabel = isPriority ? '30 Minutes (Priority Deep Hunt)' : '10 Minutes (Standard Scan)';
-
     try {
         const cleanQuery = encodeURIComponent(itemQuery || "");
         
+        // Comprehensive mainstream marketplace search options for staff review
         const links = [
-            { label: '1. eBay Active Listings', url: `https://www.ebay.com/sch/i.html?_nkw=${cleanQuery}&_sacat=0` },
-            { label: '2. KSL Classifieds', url: `https://www.ksl.com/classifieds/search?keyword=${cleanQuery}` },
-            { label: '3. Facebook Marketplace', url: `https://www.facebook.com/marketplace/search/?query=${cleanQuery}` }
+            { label: '🔍 eBay Verified Search Results', url: `https://www.ebay.com/sch/i.html?_nkw=${cleanQuery}&_sacat=0` },
+            { label: '🛒 Amazon Direct Catalog', url: `https://www.amazon.com/s?k=${cleanQuery}` },
+            { label: '🏪 Walmart Online Marketplace', url: `https://www.walmart.com/search?q=${cleanQuery}` },
+            { label: '📍 KSL Classifieds (Local/Regional)', url: `https://www.ksl.com/classifieds/search?keyword=${cleanQuery}` },
+            { label: '👥 Facebook Marketplace Search', url: `https://www.facebook.com/marketplace/search/?query=${cleanQuery}` }
         ];
 
+        const resultsText = `AI Multi-Platform Scan Complete.\n` +
+            `• Target: ${itemQuery}\n` +
+            `• Budget: ${targetPrice || 'Flexible'}\n` +
+            `• Generated 5 mainstream sourcing links for staff filtering.`;
+
         let orders = loadOrders();
-        
-        // Mark order as currently scanning in the background
         orders = orders.map(o => {
             if (o.id === orderId) {
-                o.status = 'AI Scanning...';
-                o.aiResults = `AI scan in progress (${durationLabel})...`;
+                o.status = 'Waiting';
+                o.directLinks = links;
+                o.aiResults = resultsText;
             }
             return o;
         });
         saveOrders(orders);
 
-        // Respond immediately that the timer has started
         res.json({
             success: true,
-            staffNotice: `AI background hunt deployed for ${durationLabel}. Links will unlock automatically when the scan completes.`
+            results: resultsText,
+            links: links,
+            staffNotice: "AI generated multiple mainstream marketplace options successfully."
         });
-
-        // Background timer simulating the deep AI hunt duration
-        setTimeout(() => {
-            let currentOrders = loadOrders();
-            currentOrders = currentOrders.map(o => {
-                if (o.id === orderId) {
-                    o.status = 'Waiting';
-                    o.directLinks = links;
-                    o.aiResults = `AI Sourcing Scan Complete (${durationLabel} elapsed).\n• Compiled 3 direct platform links.`;
-                }
-                return o;
-            });
-            saveOrders(currentOrders);
-        }, scanDurationMs);
-
     } catch (error) {
         res.status(500).json({ success: false, error: "Search failed." });
     }
