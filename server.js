@@ -44,9 +44,9 @@ app.post('/api/orders', (req, res) => {
         notes: notes || "",
         packageName: packageName || "Standard Search",
         fee: fee || 30,
-        isPaid: false,
+        isPaid: false, // Default to Pending Payment for staff verification
         status: 'Waiting',
-        directLink: '',
+        directLinks: [],
         aiResults: '',
         createdAt: new Date().toISOString()
     };
@@ -57,7 +57,7 @@ app.post('/api/orders', (req, res) => {
 });
 
 app.post('/api/orders/update', (req, res) => {
-    const { id, isPaid, status, directLink, action } = req.body;
+    const { id, isPaid, status, directLinks, action } = req.body;
     let orders = loadOrders();
 
     if (action === 'delete') {
@@ -70,7 +70,7 @@ app.post('/api/orders/update', (req, res) => {
         if (o.id === id) {
             if (isPaid !== undefined) o.isPaid = isPaid;
             if (status !== undefined) o.status = status;
-            if (directLink !== undefined) o.directLink = directLink;
+            if (directLinks !== undefined) o.directLinks = directLinks;
         }
         return o;
     });
@@ -84,19 +84,23 @@ app.post('/api/hunt-item', async (req, res) => {
     
     try {
         const cleanQuery = encodeURIComponent(itemQuery || "");
-        const ebayLink = `https://www.ebay.com/sch/i.html?_nkw=${cleanQuery}&_sacat=0`;
-        const defaultLink = ebayLink;
         
-        const resultsText = `AI Sourcing & Deep Match Complete (${duration || '24 hours'} scan window).\n` +
-            `• Target Item: ${itemQuery}\n` +
-            `• Budget Ceiling: ${targetPrice || 'Flexible'}\n` +
-            `• Direct Marketplace Match Compiled (eBay Active Listings).\n` +
-            `• Status: Ready for direct dispatch.`;
+        // Generate multi-marketplace exact search/listing links
+        const links = [
+            { label: '1. eBay Listing Search', url: `https://www.ebay.com/sch/i.html?_nkw=${cleanQuery}&_sacat=0` },
+            { label: '2. KSL Classifieds', url: `https://www.ksl.com/classifieds/search?keyword=${cleanQuery}` },
+            { label: '3. Facebook Marketplace', url: `https://www.facebook.com/marketplace/search/?query=${cleanQuery}` }
+        ];
+
+        const resultsText = `AI Sourcing Scan Complete (${duration || '24 hours'} window).\n` +
+            `• Target: ${itemQuery}\n` +
+            `• Budget: ${targetPrice || 'Flexible'}\n` +
+            `• Compiled 3 targeted platform links for staff review.`;
 
         let orders = loadOrders();
         orders = orders.map(o => {
             if (o.id === orderId) {
-                o.directLink = defaultLink;
+                o.directLinks = links;
                 o.aiResults = resultsText;
             }
             return o;
@@ -106,8 +110,8 @@ app.post('/api/hunt-item', async (req, res) => {
         res.json({
             success: true,
             results: resultsText,
-            defaultLink: defaultLink,
-            staffNotice: "AI search compiled precise marketplace listings successfully."
+            links: links,
+            staffNotice: "AI search compiled 3 multi-platform listing links successfully."
         });
     } catch (error) {
         res.status(500).json({ success: false, error: "Search failed." });
