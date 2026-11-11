@@ -20,7 +20,7 @@
         .logo-icon { background: linear-gradient(135deg, #7c3aed, #4f46e5); padding: 10px; border-radius: 10px; color: white; font-weight: bold; }
         .logo-text h1 { margin: 0; font-size: 20px; color: #fff; }
         .logo-text span { font-size: 10px; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.1em; }
-        .btn-nav { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .btn-nav { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; z-index: 1001; }
         .btn-nav:hover { background: rgba(255, 255, 255, 0.15); border-color: #7c3aed; }
         
         .hero { text-align: center; padding: 60px 20px 40px; max-width: 900px; margin: 0 auto; }
@@ -297,3 +297,202 @@
             try {
                 var response = await fetch('/api/orders', {
                     method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: customerName,
+                        contact: customerContact,
+                        query: itemQuery + ' [' + itemSpecifics + ']',
+                        condition: itemCondition,
+                        budget: targetPrice || "Flexible",
+                        notes: additionalNotes,
+                        packageName: selectedPackageName,
+                        fee: selectedPackageFee
+                    })
+                });
+                var data = await response.json();
+
+                if(data.success) {
+                    document.getElementById('requestFormSection').style.display = 'none';
+                    document.getElementById('successNoticeBox').style.display = 'block';
+                } else {
+                    alert("Error submitting order.");
+                }
+            } catch (err) {
+                alert("Server connection error.");
+            }
+        }
+
+        function openPinModal() { 
+            var gatePin = document.getElementById('gatePin');
+            if(gatePin) gatePin.value = '';
+            var pinModal = document.getElementById('pinModal');
+            if(pinModal) {
+                pinModal.style.setProperty('display', 'flex', 'important');
+            }
+        }
+        
+        function closeModals() { 
+            var pinModal = document.getElementById('pinModal');
+            var loginModal = document.getElementById('loginModal');
+            if(pinModal) pinModal.style.display = 'none'; 
+            if(loginModal) loginModal.style.display = 'none';
+        }
+
+        function verifyPin() {
+            var pin = document.getElementById('gatePin').value;
+            if(pin === "0710") {
+                var pinModal = document.getElementById('pinModal');
+                if(pinModal) pinModal.style.display = 'none';
+                var staffUser = document.getElementById('staffUser');
+                var staffPass = document.getElementById('staffPass');
+                if(staffUser) staffUser.value = '';
+                if(staffPass) staffPass.value = '';
+                var loginModal = document.getElementById('loginModal');
+                if(loginModal) loginModal.style.setProperty('display', 'flex', 'important');
+            } else {
+                alert("Incorrect PIN (Hint: 0710)");
+            }
+        }
+
+        async function verifyStaffLogin() {
+            var user = document.getElementById('staffUser').value;
+            var pass = document.getElementById('staffPass').value;
+            
+            if(user.trim() !== "" && pass.trim() !== "") {
+                closeModals();
+                document.getElementById('publicMainContent').style.display = 'none';
+                document.getElementById('loggedUserDisplay').innerText = 'User: ' + user;
+                document.getElementById('staffDashboardView').style.display = 'block';
+                await loadAndRenderDashboard();
+            } else {
+                alert("Please enter both your staff username and password.");
+            }
+        }
+
+        function logoutStaff() {
+            document.getElementById('staffDashboardView').style.display = 'none';
+            document.getElementById('publicMainContent').style.display = 'block';
+            document.getElementById('staffUser').value = '';
+            document.getElementById('staffPass').value = '';
+        }
+
+        async function togglePayment(id, currentPaidState) {
+            try {
+                var response = await fetch('/api/orders/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id, isPaid: !currentPaidState })
+                });
+                var data = await response.json();
+                if(data.success) renderDashboardData(data.orders);
+            } catch(e) { alert("Error updating payment."); }
+        }
+
+        async function markDone(id) {
+            try {
+                var response = await fetch('/api/orders/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id, status: 'Done' })
+                });
+                var data = await response.json();
+                if(data.success) renderDashboardData(data.orders);
+            } catch(e) { alert("Error updating status."); }
+        }
+
+        async function deleteOrder(id) {
+            if(!confirm("Are you sure you want to remove this order?")) return;
+            try {
+                var response = await fetch('/api/orders/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id, action: 'delete' })
+                });
+                var data = await response.json();
+                if(data.success) renderDashboardData(data.orders);
+            } catch(e) { alert("Error deleting order."); }
+        }
+
+        async function triggerAISearchForOrder(id, query, budget) {
+            var duration = prompt("Enter AI search duration (e.g., '24 hours', '48 hours', '7 days'):", "24 hours");
+            if(!duration) return;
+
+            alert("AI Search deployed with duration: " + duration + ". Contacting backend...");
+
+            try {
+                var response = await fetch('/api/hunt-item', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        orderId: id,
+                        itemQuery: query,
+                        targetPrice: budget,
+                        duration: duration
+                    })
+                });
+                var data = await response.json();
+
+                if(data.success) {
+                    alert("AI Search completed! Direct link generated.");
+                    await loadAndRenderDashboard();
+                } else {
+                    alert("AI Search failed.");
+                }
+            } catch (err) {
+                alert("Error connecting to server backend.");
+            }
+        }
+
+        async function loadAndRenderDashboard() {
+            try {
+                var response = await fetch('/api/orders');
+                var data = await response.json();
+                if(data.success) {
+                    renderDashboardData(data.orders);
+                }
+            } catch(e) {}
+        }
+
+        function renderDashboardData(orders) {
+            var waitingMoney = 0;
+            var waitingCount = 0;
+            var doneMoney = 0;
+            var doneCount = 0;
+
+            orders.forEach(function(ord) {
+                var fee = parseInt(ord.fee) || 30;
+                if(ord.status === 'Waiting') {
+                    waitingMoney += fee;
+                    waitingCount++;
+                } else {
+                    doneMoney += fee;
+                    doneCount++;
+                }
+            });
+
+            document.getElementById('statWaitingMoney').innerText = '$' + waitingMoney;
+            document.getElementById('statWaitingCount').innerText = waitingCount;
+            document.getElementById('statDoneMoney').innerText = '$' + doneMoney;
+            document.getElementById('statDoneCount').innerText = doneCount;
+
+            var tbody = document.getElementById('ordersTableBody');
+            if(!tbody) return;
+
+            if(orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">No customer orders logged yet.</td></tr>';
+                return;
+            }
+
+.           tbody.innerHTML = orders.map(function(order) {
+                return '<tr>' +
+                    '<td><strong style="color:#fff;">' + order.name + '</strong><br><a href="tel:' + order.contact + '" style="color:#a78bfa; text-decoration:none; font-size:12px;">' + order.contact + '</a></td>' +
+                    '<td>' + order.query + ' (' + order.condition + ')<br><span style="color:#4ade80; font-size:12px;">Budget: ' + order.budget + '</span>' + (order.notes ? '<br><span style="color:var(--text-muted); font-size:11px;">Notes: ' + order.notes + '</span>' : '') + '</td>' +
+                    '<td><strong>' + order.packageName + '</strong> ($' + order.fee + ')<br><button class="btn-action" style="margin-top:4px; background:' + (order.isPaid ? '#4ade80' : '#facc15') + '; color:#08090e;" onclick="togglePayment(\'' + order.id + '\', ' + order.isPaid + ')">' + (order.isPaid ? '✓ Paid' : 'Pending Payment') + '</button></td>' +
+                    '<td><button class="btn-action" onclick="triggerAISearchForOrder(\'' + order.id + '\', \'' + order.query + '\', \'' + order.budget + '\')">🤖 Run AI Search</button><button class="btn-action" style="background:#0284c7;" onclick="markDone(\'' + order.id + '\')">Mark Done</button></td>' +
+                    '<td>' + (order.directLink ? '<a href="' + order.directLink + '" target="_blank" style="color:#38bdf8; font-weight:600; text-decoration:underline;">Send Link →</a>' : '<span style="color:var(--text-muted); font-size:12px;">Not generated yet</span>') + '<br><button class="btn-action btn-delete" style="margin-top:6px;" onclick="deleteOrder(\'' + order.id + '\')">Remove</button></td>' +
+                    '</tr>';
+            }).join('');
+        }
+    </script>
+</body>
+</html>
