@@ -5,31 +5,28 @@
     <title>ItemHunter AI</title>
     <style>
         body { font-family: Arial, sans-serif; background: #121212; color: #fff; padding: 20px; }
-        .container { max-width: 600px; margin: auto; background: #1e1e1e; padding: 20px; border-radius: 8px; }
-        input, button { width: 100%; padding: 10px; margin-top: 10px; border-radius: 4px; border: none; }
+        .container { max-width: 600px; margin: auto; background: #1e1e1e; padding: 20px; border-radius: 8px; position: relative; }
+        input, button { width: 100%; padding: 10px; margin-top: 10px; border-radius: 4px; border: none; box-sizing: border-box; }
         button { background: #007bff; color: white; font-weight: bold; cursor: pointer; }
+        button.secondary { background: #444; margin-top: 5px; }
         .results { margin-top: 20px; background: #2a2a2a; padding: 15px; border-radius: 5px; }
+        .top-nav { position: absolute; top: 20px; right: 20px; width: auto; padding: 6px 12px; font-size: 12px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>ItemHunter AI Portal</h2>
-        
-        <!-- Clean Staff Login Form (No 'ex' prefix) -->
-        <div id="loginSection">
-            <h3>Staff Login</h3>
-            <input type="text" id="staffUsername" placeholder="Enter Username" required>
-            <input type="password" id="staffPin" placeholder="Enter PIN (e.g., 0710)" required>
-            <button onclick="loginStaff()">Login</button>
-        </div>
+        <!-- Top Navigation Button to Switch Views -->
+        <button id="navBtn" class="top-nav" onclick="toggleStaffPortal()">Staff Portal Login</button>
 
-        <!-- Item Search Form (Triggers automatically on submit) -->
-        <div id="searchSection" style="display:none;">
-            <h3>Live Item Search</h3>
+        <!-- CUSTOMER VIEW (Shows by default) -->
+        <div id="customerSection">
+            <h2>ItemHunter AI Search</h2>
+            <p style="color: #bbb; font-size: 14px;">Find real-world availability, prices, and direct purchase links instantly.</p>
+            
             <input type="text" id="itemQuery" placeholder="What item are you hunting for?">
             <input type="number" id="targetPrice" placeholder="Target Max Price ($)">
-            <input type="text" id="customerPhone" placeholder="Customer Phone Number">
-            <input type="email" id="customerEmail" placeholder="Customer Email">
+            <input type="text" id="customerPhone" placeholder="Your Phone Number (for staff callback)">
+            <input type="email" id="customerEmail" placeholder="Your Email (Optional)">
             <button onclick="startAutoSearch()">Search Item Now</button>
 
             <div id="searchResults" class="results" style="display:none;">
@@ -37,21 +34,52 @@
                 <div id="outputContent"></div>
             </div>
         </div>
+
+        <!-- STAFF LOGIN VIEW (Hidden by default, unlocked via button) -->
+        <div id="loginSection" style="display:none;">
+            <h3>Staff Portal Login</h3>
+            <input type="text" id="staffUsername" placeholder="Enter Username" required>
+            <input type="password" id="staffPin" placeholder="Enter PIN (e.g., 0710)" required>
+            <button onclick="loginStaff()">Login</button>
+            <button class="secondary" onclick="toggleStaffPortal()">Back to Main Search</button>
+        </div>
+
+        <!-- STAFF DASHBOARD VIEW (Shown after successful login) -->
+        <div id="staffDashboard" style="display:none;">
+            <h3>Staff Control Panel</h3>
+            <p style="color: #28a745;">Status: Logged in securely.</p>
+            <p>Here you can review customer submissions and phone numbers for manual follow-up.</p>
+            <button class="secondary" onclick="logoutStaff()">Log Out</button>
+        </div>
     </div>
 
     <script>
+        let isStaffView = false;
+
+        function toggleStaffPortal() {
+            isStaffView = !isStaffView;
+            document.getElementById('customerSection').style.display = isStaffView ? 'none' : 'block';
+            document.getElementById('loginSection').style.display = isStaffView ? 'block' : 'none';
+            document.getElementById('staffDashboard').style.display = 'none';
+            document.getElementById('navBtn').style.display = isStaffView ? 'none' : 'block';
+        }
+
         function loginStaff() {
             const user = document.getElementById('staffUsername').value;
             const pin = document.getElementById('staffPin').value;
             if(pin === "0710" && user.trim() !== "") {
                 document.getElementById('loginSection').style.display = 'none';
-                document.getElementById('searchSection').style.display = 'block';
+                document.getElementById('staffDashboard').style.display = 'block';
             } else {
                 alert("Invalid Username or PIN.");
             }
         }
 
-        // Automatically executes the search payload when clicked
+        function logoutStaff() {
+            document.getElementById('staffDashboard').style.display = 'none';
+            toggleStaffPortal();
+        }
+
         async function startAutoSearch() {
             const itemQuery = document.getElementById('itemQuery').value;
             const targetPrice = document.getElementById('targetPrice').value;
@@ -76,9 +104,9 @@
 
                 if(data.success) {
                     document.getElementById('outputContent').innerHTML = `
-                        <p><strong>Findings:</strong> ${data.results.replace(/\n/g, '<br>')}</p>
+                        <p><strong>Findings:</strong><br>${data.results.replace(/\n/g, '<br>')}</p>
                         <p><a href="${data.defaultLink}" target="_blank" style="color: #4da6ff;">Direct Web Search Link</a></p>
-                        <p style="color: #ffc107;">${data.staffNotice}</p>
+                        <p style="color: #ffc107; font-size: 13px; margin-top: 10px;">${data.staffNotice}</p>
                     `;
                 } else {
                     document.getElementById('outputContent').innerHTML = "Search failed.";
