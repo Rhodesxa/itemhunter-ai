@@ -8,7 +8,6 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Persistent storage file for orders
 const ORDERS_FILE = path.join(__dirname, 'orders.json');
 
 function loadOrders() {
@@ -26,13 +25,11 @@ function saveOrders(orders) {
     } catch (e) {}
 }
 
-// API: Get all orders for staff portal
 app.get('/api/orders', (req, res) => {
     const orders = loadOrders();
     res.json({ success: true, orders });
 });
 
-// API: Customer submits order after payment
 app.post('/api/orders', (req, res) => {
     const { name, contact, query, condition, budget, notes, packageName, fee } = req.body;
     const orders = loadOrders();
@@ -59,7 +56,6 @@ app.post('/api/orders', (req, res) => {
     res.json({ success: true, order: newOrder });
 });
 
-// API: Update or delete orders from staff side
 app.post('/api/orders/update', (req, res) => {
     const { id, isPaid, status, directLink, action } = req.body;
     let orders = loadOrders();
@@ -83,7 +79,6 @@ app.post('/api/orders/update', (req, res) => {
     res.json({ success: true, orders });
 });
 
-// API: Staff triggers AI Search
 app.post('/api/hunt-item', async (req, res) => {
     const { orderId, itemQuery, targetPrice, duration } = req.body;
     
