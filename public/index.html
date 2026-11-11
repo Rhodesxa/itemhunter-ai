@@ -30,7 +30,7 @@
 
         .container {
             width: 100%;
-            max-width: 550px;
+            max-width: 600px;
             background: var(--card-bg);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
@@ -162,27 +162,27 @@
 </head>
 <body>
     <div class="container">
-        <!-- Top Navigation Button -->
-        <button id="navBtn" class="top-nav" onclick="toggleStaffPortal()">Staff Login</button>
+        <!-- Top Navigation Button to Switch Views -->
+        <button id="navBtn" class="top-nav" onclick="toggleStaffPortal()">Staff Portal</button>
 
-        <!-- CUSTOMER VIEW -->
+        <!-- CUSTOMER VIEW (Loaded by default) -->
         <div id="customerSection">
-            <h2>ItemHunter AI</h2>
-            <p>Enter your item details below. Our AI will instantly search live web listings and find direct purchase links for you.</p>
+            <h2>ItemHunter AI Search</h2>
+            <p>Find real-world availability, prices, and direct purchase links instantly.</p>
             
-            <label for="itemQuery">Item Description</label>
+            <label for="itemQuery">What item are you hunting for?</label>
             <input type="text" id="itemQuery" placeholder="e.g., Sony WH-1000XM5 Headphones">
             
             <label for="targetPrice">Target Max Price ($)</label>
             <input type="number" id="targetPrice" placeholder="e.g., 250">
             
-            <label for="customerPhone">Phone Number</label>
-            <input type="text" id="customerPhone" placeholder="For staff follow-up">
+            <label for="customerPhone">Your Phone Number</label>
+            <input type="text" id="customerPhone" placeholder="For staff callback">
             
-            <label for="customerEmail">Email (Optional)</label>
+            <label for="customerEmail">Your Email (Optional)</label>
             <input type="email" id="customerEmail" placeholder="name@example.com">
             
-            <button onclick="startAutoSearch()">Start AI Search</button>
+            <button onclick="startAutoSearch()">Search Item Now</button>
 
             <div id="searchResults" class="results" style="display:none;">
                 <h4>Live AI Results & Links</h4>
@@ -190,9 +190,9 @@
             </div>
         </div>
 
-        <!-- STAFF LOGIN VIEW -->
+        <!-- STAFF LOGIN VIEW (Hidden by default) -->
         <div id="loginSection" style="display:none;">
-            <h2>Staff Portal</h2>
+            <h2>Staff Portal Login</h2>
             <p>Please enter your credentials to access the secure staff dashboard.</p>
             
             <label for="staffUsername">Username</label>
@@ -201,11 +201,11 @@
             <label for="staffPin">Security PIN</label>
             <input type="password" id="staffPin" placeholder="Enter PIN (e.g., 0710)" required>
             
-            <button onclick="loginStaff()">Sign In</button>
+            <button onclick="loginStaff()">Login</button>
             <button class="secondary" onclick="toggleStaffPortal()">Back to Main Search</button>
         </div>
 
-        <!-- STAFF DASHBOARD VIEW -->
+        <!-- STAFF DASHBOARD VIEW (Shown after successful login) -->
         <div id="staffDashboard" style="display:none;">
             <h2>Staff Control Panel</h2>
             <p class="badge-success">● Secure session active</p>
@@ -265,4 +265,17 @@
 
                 if(data.success) {
                     document.getElementById('outputContent').innerHTML = `
-                        <div style="line-height: 1.6; margin-bottom:
+                        <div style="line-height: 1.6; margin-bottom: 12px;">${data.results.replace(/\n/g, '<br>')}</div>
+                        <div style="margin-top: 15px;"><a href="${data.defaultLink}" target="_blank" style="color: #38bdf8; text-decoration: none; font-weight: 600;">🔗 Direct Web Search Link &rarr;</a></div>
+                        <div class="notice-text">${data.staffNotice}</div>
+                    `;
+                } else {
+                    document.getElementById('outputContent').innerHTML = "Search failed.";
+                }
+            } catch (err) {
+                document.getElementById('outputContent').innerHTML = "Error connecting to server.";
+            }
+        }
+    </script>
+</body>
+</html>
