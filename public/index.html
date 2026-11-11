@@ -2,53 +2,214 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ItemHunter AI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ItemHunter AI | Live Procurement</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #121212; color: #fff; padding: 20px; }
-        .container { max-width: 600px; margin: auto; background: #1e1e1e; padding: 20px; border-radius: 8px; position: relative; }
-        input, button { width: 100%; padding: 10px; margin-top: 10px; border-radius: 4px; border: none; box-sizing: border-box; }
-        button { background: #007bff; color: white; font-weight: bold; cursor: pointer; }
-        button.secondary { background: #444; margin-top: 5px; }
-        .results { margin-top: 20px; background: #2a2a2a; padding: 15px; border-radius: 5px; }
-        .top-nav { position: absolute; top: 20px; right: 20px; width: auto; padding: 6px 12px; font-size: 12px; }
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --card-bg: rgba(30, 41, 59, 0.75);
+            --border-color: rgba(56, 189, 248, 0.2);
+            --primary-blue: #0284c7;
+            --primary-hover: #0369a1;
+            --accent-glow: rgba(56, 189, 248, 0.4);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 550px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            color: #38bdf8;
+        }
+
+        p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 6px;
+            margin-top: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 15px;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: white;
+            font-weight: 600;
+            font-size: 15px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(2, 132, 199, 0.4);
+        }
+
+        button.secondary {
+            background: rgba(51, 65, 85, 0.6);
+            box-shadow: none;
+            margin-top: 10px;
+        }
+
+        button.secondary:hover {
+            background: rgba(71, 85, 105, 0.8);
+        }
+
+        .results {
+            margin-top: 25px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid #334155;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .results h4 {
+            margin-top: 0;
+            color: #38bdf8;
+            font-size: 16px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 8px;
+        }
+
+        .top-nav {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            width: auto;
+            padding: 6px 14px;
+            font-size: 12px;
+            margin-top: 0;
+            background: rgba(51, 65, 85, 0.4);
+            border: 1px solid #475569;
+            box-shadow: none;
+        }
+
+        .top-nav:hover {
+            background: rgba(51, 65, 85, 0.8);
+        }
+
+        .badge-success {
+            color: #4ade80;
+            font-weight: 600;
+        }
+
+        .notice-text {
+            color: #facc15;
+            font-size: 13px;
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px dashed #334155;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Top Navigation Button to Switch Views -->
-        <button id="navBtn" class="top-nav" onclick="toggleStaffPortal()">Staff Portal Login</button>
+        <!-- Top Navigation Button -->
+        <button id="navBtn" class="top-nav" onclick="toggleStaffPortal()">Staff Login</button>
 
-        <!-- CUSTOMER VIEW (Shows by default) -->
+        <!-- CUSTOMER VIEW -->
         <div id="customerSection">
-            <h2>ItemHunter AI Search</h2>
-            <p style="color: #bbb; font-size: 14px;">Find real-world availability, prices, and direct purchase links instantly.</p>
+            <h2>ItemHunter AI</h2>
+            <p>Enter your item details below. Our AI will instantly search live web listings and find direct purchase links for you.</p>
             
-            <input type="text" id="itemQuery" placeholder="What item are you hunting for?">
-            <input type="number" id="targetPrice" placeholder="Target Max Price ($)">
-            <input type="text" id="customerPhone" placeholder="Your Phone Number (for staff callback)">
-            <input type="email" id="customerEmail" placeholder="Your Email (Optional)">
-            <button onclick="startAutoSearch()">Search Item Now</button>
+            <label for="itemQuery">Item Description</label>
+            <input type="text" id="itemQuery" placeholder="e.g., Sony WH-1000XM5 Headphones">
+            
+            <label for="targetPrice">Target Max Price ($)</label>
+            <input type="number" id="targetPrice" placeholder="e.g., 250">
+            
+            <label for="customerPhone">Phone Number</label>
+            <input type="text" id="customerPhone" placeholder="For staff follow-up">
+            
+            <label for="customerEmail">Email (Optional)</label>
+            <input type="email" id="customerEmail" placeholder="name@example.com">
+            
+            <button onclick="startAutoSearch()">Start AI Search</button>
 
             <div id="searchResults" class="results" style="display:none;">
-                <h4>Live AI Results & Links:</h4>
+                <h4>Live AI Results & Links</h4>
                 <div id="outputContent"></div>
             </div>
         </div>
 
-        <!-- STAFF LOGIN VIEW (Hidden by default, unlocked via button) -->
+        <!-- STAFF LOGIN VIEW -->
         <div id="loginSection" style="display:none;">
-            <h3>Staff Portal Login</h3>
+            <h2>Staff Portal</h2>
+            <p>Please enter your credentials to access the secure staff dashboard.</p>
+            
+            <label for="staffUsername">Username</label>
             <input type="text" id="staffUsername" placeholder="Enter Username" required>
+            
+            <label for="staffPin">Security PIN</label>
             <input type="password" id="staffPin" placeholder="Enter PIN (e.g., 0710)" required>
-            <button onclick="loginStaff()">Login</button>
+            
+            <button onclick="loginStaff()">Sign In</button>
             <button class="secondary" onclick="toggleStaffPortal()">Back to Main Search</button>
         </div>
 
-        <!-- STAFF DASHBOARD VIEW (Shown after successful login) -->
+        <!-- STAFF DASHBOARD VIEW -->
         <div id="staffDashboard" style="display:none;">
-            <h3>Staff Control Panel</h3>
-            <p style="color: #28a745;">Status: Logged in securely.</p>
-            <p>Here you can review customer submissions and phone numbers for manual follow-up.</p>
+            <h2>Staff Control Panel</h2>
+            <p class="badge-success">● Secure session active</p>
+            <p>Ready to monitor incoming requests and contact customers directly via phone or email.</p>
             <button class="secondary" onclick="logoutStaff()">Log Out</button>
         </div>
     </div>
@@ -91,7 +252,7 @@
                 return;
             }
 
-            document.getElementById('outputContent').innerHTML = "AI is scanning live web listings...";
+            document.getElementById('outputContent').innerHTML = "<span style='color: #38bdf8;'>AI is scanning live web listings...</span>";
             document.getElementById('searchResults').style.display = 'block';
 
             try {
@@ -104,17 +265,4 @@
 
                 if(data.success) {
                     document.getElementById('outputContent').innerHTML = `
-                        <p><strong>Findings:</strong><br>${data.results.replace(/\n/g, '<br>')}</p>
-                        <p><a href="${data.defaultLink}" target="_blank" style="color: #4da6ff;">Direct Web Search Link</a></p>
-                        <p style="color: #ffc107; font-size: 13px; margin-top: 10px;">${data.staffNotice}</p>
-                    `;
-                } else {
-                    document.getElementById('outputContent').innerHTML = "Search failed.";
-                }
-            } catch (err) {
-                document.getElementById('outputContent').innerHTML = "Error connecting to server.";
-            }
-        }
-    </script>
-</body>
-</html>
+                        <div style="line-height: 1.6; margin-bottom:
