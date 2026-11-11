@@ -7,7 +7,7 @@
     <style>
         :root {
             --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-            --card-bg: rgba(30, 41, 59, 0.75);
+            --card-bg: rgba(30, 41, 59, 0.85);
             --border-color: rgba(56, 189, 248, 0.2);
             --primary-blue: #0284c7;
             --primary-hover: #0369a1;
@@ -30,7 +30,9 @@
 
         .container {
             width: 100%;
-            max-width: 650px;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
             background: var(--card-bg);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
@@ -39,6 +41,16 @@
             border-radius: 16px;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
             position: relative;
+            box-sizing: border-box;
+        }
+
+        /* Custom scrollbar for sleek look */
+        .container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .container::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
         }
 
         h2 {
@@ -67,7 +79,7 @@
         input, select {
             width: 100%;
             padding: 12px 16px;
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(15, 23, 42, 0.7);
             border: 1px solid #334155;
             border-radius: 8px;
             color: #fff;
@@ -120,7 +132,7 @@
 
         .results {
             margin-top: 25px;
-            background: rgba(15, 23, 42, 0.8);
+            background: rgba(15, 23, 42, 0.9);
             border: 1px solid #334155;
             padding: 20px;
             border-radius: 10px;
@@ -184,4 +196,121 @@
                 <option value="Brand New">Brand New / Sealed</option>
                 <option value="Like New">Like New / Open Box</option>
                 <option value="Refurbished">Certified Refurbished</option>
-                <option value="Used">Used / Good
+                <option value="Used">Used / Good</option>
+            </select>
+
+            <label for="priceTier">Price Tier / Budget Range</label>
+            <select id="priceTier">
+                <option value="Budget">Budget / Economy</option>
+                <option value="Mid-Range" selected>Mid-Range (Standard)</option>
+                <option value="Premium">Premium / High-End</option>
+            </select>
+
+            <label for="targetPrice">Target Max Price ($)</label>
+            <input type="number" id="targetPrice" placeholder="e.g., 250">
+            
+            <label for="customerPhone">Your Phone Number</label>
+            <input type="text" id="customerPhone" placeholder="For staff callback">
+            
+            <label for="customerEmail">Your Email (Optional)</label>
+            <input type="email" id="customerEmail" placeholder="name@example.com">
+            
+            <button onclick="startAutoSearch()">Search Item Now</button>
+
+            <div id="searchResults" class="results" style="display:none;">
+                <h4>Live AI Results & Links</h4>
+                <div id="outputContent"></div>
+            </div>
+        </div>
+
+        <!-- STAFF LOGIN VIEW -->
+        <div id="loginSection" style="display:none;">
+            <h2>Staff Portal Login</h2>
+            <p>Please enter your credentials to access the secure staff dashboard.</p>
+            
+            <label for="staffUsername">Username</label>
+            <input type="text" id="staffUsername" placeholder="Enter Username" required>
+            
+            <label for="staffPin">Security PIN</label>
+            <input type="password" id="staffPin" placeholder="Enter PIN (e.g., 0710)" required>
+            
+            <button onclick="loginStaff()">Login</button>
+            <button class="secondary" onclick="toggleStaffPortal()">Back to Main Search</button>
+        </div>
+
+        <!-- STAFF DASHBOARD VIEW -->
+        <div id="staffDashboard" style="display:none;">
+            <h2>Staff Control Panel</h2>
+            <p class="badge-success">● Secure session active</p>
+            <p>Ready to monitor incoming requests and contact customers directly via phone or email.</p>
+            <button class="secondary" onclick="logoutStaff()">Log Out</button>
+        </div>
+    </div>
+
+    <script>
+        let isStaffView = false;
+
+        function toggleStaffPortal() {
+            isStaffView = !isStaffView;
+            document.getElementById('customerSection').style.display = isStaffView ? 'none' : 'block';
+            document.getElementById('loginSection').style.display = isStaffView ? 'block' : 'none';
+            document.getElementById('staffDashboard').style.display = 'none';
+            document.getElementById('navBtn').style.display = isStaffView ? 'none' : 'block';
+        }
+
+        function loginStaff() {
+            const user = document.getElementById('staffUsername').value;
+            const pin = document.getElementById('staffPin').value;
+            if(pin === "0710" && user.trim() !== "") {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('staffDashboard').style.display = 'block';
+            } else {
+                alert("Invalid Username or PIN.");
+            }
+        }
+
+        function logoutStaff() {
+            document.getElementById('staffDashboard').style.display = 'none';
+            toggleStaffPortal();
+        }
+
+        async function startAutoSearch() {
+            const itemQuery = document.getElementById('itemQuery').value;
+            const itemCondition = document.getElementById('itemCondition').value;
+            const priceTier = document.getElementById('priceTier').value;
+            const targetPrice = document.getElementById('targetPrice').value;
+            const customerPhone = document.getElementById('customerPhone').value;
+            const customerEmail = document.getElementById('customerEmail').value;
+
+            if(!itemQuery) {
+                alert("Please enter an item to search.");
+                return;
+            }
+
+            document.getElementById('outputContent').innerHTML = "<span style='color: #38bdf8;'>AI is scanning live web listings...</span>";
+            document.getElementById('searchResults').style.display = 'block';
+
+            try {
+                const response = await fetch('/api/hunt-item', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ itemQuery, itemCondition, priceTier, targetPrice, customerPhone, customerEmail })
+                });
+                const data = await response.json();
+
+                if(data.success) {
+                    document.getElementById('outputContent').innerHTML = `
+                        <div style="line-height: 1.6; margin-bottom: 12px;">${data.results.replace(/\n/g, '<br>')}</div>
+                        <div style="margin-top: 15px;"><a href="${data.defaultLink}" target="_blank" style="color: #38bdf8; text-decoration: none; font-weight: 600;">🔗 Direct Web Search Link &rarr;</a></div>
+                        <div class="notice-text">${data.staffNotice}</div>
+                    `;
+                } else {
+                    document.getElementById('outputContent').innerHTML = "Search failed.";
+                }
+            } catch (err) {
+                document.getElementById('outputContent').innerHTML = "Error connecting to server.";
+            }
+        }
+    </script>
+</body>
+</html>
