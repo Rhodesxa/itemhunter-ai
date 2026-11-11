@@ -45,11 +45,11 @@
             </div>
         </div>
         <div>
-            <button class="btn-nav" onclick="openStaffLogin()">Staff Portal</button>
+            <button class="btn-nav" onclick="openPinModal()">Staff Portal</button>
         </div>
     </header>
 
-    <!-- Main Public Landing / Intake View -->
+    <!-- Main Public Landing Page -->
     <div id="publicMainContent">
         <div class="hero">
             <h2>We Hunt Down<br><span>Impossible-to-Find</span> Items.</h2>
@@ -112,46 +112,75 @@
         </div>
     </div>
 
-    <!-- Staff Control Dashboard View (Hidden until PIN is verified) -->
+    <!-- Staff Control Dashboard View (Shown after full login) -->
     <div id="staffDashboardView" style="display:none; max-width: 800px; margin: 60px auto; padding: 40px; background: var(--card-bg); border-radius: 20px; border: 1px solid #7c3aed;">
         <h2 style="color: #a78bfa; margin-top: 0;">Staff Control Panel</h2>
-        <p style="color: #4ade80;">● Secure session active (PIN: 0710 Verified)</p>
+        <p style="color: #4ade80;">● Secure session active (<span id="loggedUserDisplay"></span>)</p>
         <p style="color: var(--text-muted);">Manage customer logs, review incoming lead submissions, and coordinate customer call-backs.</p>
         <button class="btn-nav" style="margin-top: 20px; background: #7c3aed;" onclick="logoutStaff()">Log Out / Return to Main</button>
     </div>
 
-    <!-- Staff Login Modal -->
-    <div class="staff-modal" id="staffModal">
+    <!-- STEP 1: PIN Prompt Modal -->
+    <div class="staff-modal" id="pinModal">
         <div class="staff-box">
-            <h3 style="margin-top:0; color:#fff;">Staff Portal Login</h3>
-            <p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;">Enter username and security PIN to access staff tools.</p>
-            <label>Username</label>
-            <input type="text" id="staffUser" placeholder="Username" style="margin-bottom:15px;">
+            <h3 style="margin-top:0; color:#fff;">Enter Security PIN</h3>
+            <p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;">Please enter your access PIN to proceed to staff login.</p>
             <label>Security PIN</label>
-            <input type="password" id="staffPin" placeholder="PIN (e.g. 0710)" style="margin-bottom:25px;">
-            <button class="btn-submit" onclick="verifyStaff()" style="margin-top:0;">Login</button>
-            <button class="btn-nav" style="width:100%; margin-top:10px; background:transparent;" onclick="closeStaffLogin()">Cancel</button>
+            <input type="password" id="gatePin" placeholder="Enter PIN (e.g. 0710)" style="margin-bottom:25px;">
+            <button class="btn-submit" onclick="verifyPin()" style="margin-top:0;">Continue</button>
+            <button class="btn-nav" style="width:100%; margin-top:10px; background:transparent;" onclick="closeModals()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- STEP 2: Staff Account Login Screen (Username & Password) -->
+    <div class="staff-modal" id="loginModal">
+        <div class="staff-box">
+            <h3 style="margin-top:0; color:#fff;">Staff Account Login</h3>
+            <p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;">PIN verified. Enter your staff account credentials.</p>
+            <label>Staff Username</label>
+            <input type="text" id="staffUser" placeholder="Username" style="margin-bottom:15px;">
+            <label>Staff Password</label>
+            <input type="password" id="staffPass" placeholder="Password" style="margin-bottom:25px;">
+            <button class="btn-submit" onclick="verifyStaffLogin()" style="margin-top:0;">Access Dashboard</button>
+            <button class="btn-nav" style="width:100%; margin-top:10px; background:transparent;" onclick="closeModals()">Cancel</button>
         </div>
     </div>
 
     <script>
-        function openStaffLogin() { 
-            document.getElementById('staffModal').style.display = 'flex'; 
+        function openPinModal() { 
+            document.getElementById('gatePin').value = '';
+            document.getElementById('pinModal').style.display = 'flex'; 
         }
         
-        function closeStaffLogin() { 
-            document.getElementById('staffModal').style.display = 'none'; 
+        function closeModals() { 
+            document.getElementById('pinModal').style.display = 'none'; 
+            document.getElementById('loginModal').style.display = 'none';
         }
 
-        function verifyStaff() {
+        function verifyPin() {
+            const pin = document.getElementById('gatePin').value;
+            if(pin === "0710") {
+                // Hide PIN modal and open the Staff Account Login modal
+                document.getElementById('pinModal').style.display = 'none';
+                document.getElementById('staffUser').value = '';
+                document.getElementById('staffPass').value = '';
+                document.getElementById('loginModal').style.display = 'flex';
+            } else {
+                alert("Incorrect PIN (Hint: 0710)");
+            }
+        }
+
+        function verifyStaffLogin() {
             const user = document.getElementById('staffUser').value;
-            const pin = document.getElementById('staffPin').value;
-            if(pin === "0710" && user.trim() !== "") {
-                closeStaffLogin();
+            const pass = document.getElementById('staffPass').value;
+            
+            if(user.trim() !== "" && pass.trim() !== "") {
+                closeModals();
                 document.getElementById('publicMainContent').style.display = 'none';
+                document.getElementById('loggedUserDisplay').innerText = `User: ${user}`;
                 document.getElementById('staffDashboardView').style.display = 'block';
             } else {
-                alert("Invalid Username or PIN (Hint PIN: 0710)");
+                alert("Please enter both your staff username and password.");
             }
         }
 
@@ -159,7 +188,7 @@
             document.getElementById('staffDashboardView').style.display = 'none';
             document.getElementById('publicMainContent').style.display = 'block';
             document.getElementById('staffUser').value = '';
-            document.getElementById('staffPin').value = '';
+            document.getElementById('staffPass').value = '';
         }
 
         async function submitItemHunt() {
