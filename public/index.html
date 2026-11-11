@@ -3,314 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ItemHunter AI | Live Procurement</title>
+    <title>ItemHunter AI | Elite Sourcing Concierge</title>
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-            --card-bg: rgba(30, 41, 59, 0.85);
-            --border-color: rgba(56, 189, 248, 0.2);
-            --primary-blue: #0284c7;
-            --primary-hover: #0369a1;
-            --accent-glow: rgba(56, 189, 248, 0.4);
+            --bg-color: #08090e;
+            --card-bg: rgba(18, 20, 31, 0.85);
+            --border-color: rgba(147, 51, 234, 0.2);
+            --primary-purple: #7c3aed;
+            --primary-hover: #6d28d9;
+            --accent-glow: rgba(124, 58, 237, 0.3);
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
         }
 
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: var(--bg-gradient);
+            background: var(--bg-color);
             color: var(--text-main);
-            min-height: 100vh;
             margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        header {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            padding: 20px;
+            padding: 24px 48px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .container {
-            width: 100%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border-color);
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
-            position: relative;
-            box-sizing: border-box;
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        /* Custom scrollbar for sleek look */
-        .container::-webkit-scrollbar {
-            width: 8px;
-        }
-        .container::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 4px;
+        .logo-icon {
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        h2 {
-            margin-top: 0;
-            font-size: 24px;
+        .logo-text h1 {
+            margin: 0;
+            font-size: 20px;
             font-weight: 700;
             letter-spacing: -0.025em;
-            color: #38bdf8;
+            color: #fff;
         }
 
-        p {
-            color: var(--text-muted);
-            font-size: 14px;
+        .logo-text span {
+            font-size: 10px;
+            color: #a78bfa;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-nav {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-nav:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .hero {
+            text-align: center;
+            padding: 60px 20px 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .badge-pill {
+            display: inline-block;
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            color: #a78bfa;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
             margin-bottom: 20px;
+        }
+
+        .hero h2 {
+            font-size: 52px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin: 0 0 20px 0;
+            letter-spacing: -0.03em;
+        }
+
+        .hero h2 span {
+            background: linear-gradient(135deg, #a78bfa, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 16px;
+            line-height: 1.6;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            margin: 0 0 5px 0;
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .stat-card span {
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .form-container {
+            max-width: 800px;
+            margin: 40px auto 80px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        }
+
+        .form-container h3 {
+            margin: 0 0 8px 0;
+            font-size: 22px;
+            color: #fff;
+        }
+
+        .form-container p {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-bottom: 30px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group.full {
+            grid-column: span 2;
         }
 
         label {
             display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: #cbd5e1;
-            margin-bottom: 6px;
-            margin-top: 14px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(15, 23, 42, 0.7);
-            border: 1px solid #334155;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 15px;
-            box-sizing: border-box;
-            transition: all 0.2s ease;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: #38bdf8;
-            box-shadow: 0 0 0 3px var(--accent-glow);
-        }
-
-        select option {
-            background: #0f172a;
-            color: #fff;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 20px;
-            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-            color: white;
-            font-weight: 600;
-            font-size: 15px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
-        }
-
-        button:hover {
-            background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(2, 132, 199, 0.4);
-        }
-
-        button.secondary {
-            background: rgba(51, 65, 85, 0.6);
-            box-shadow: none;
-            margin-top: 10px;
-        }
-
-        button.secondary:hover {
-            background: rgba(71, 85, 105, 0.8);
-        }
-
-        .results {
-            margin-top: 25px;
-            background: rgba(15, 23, 42, 0.9);
-            border: 1px solid #334155;
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-        .results h4 {
-            margin-top: 0;
-            color: #38bdf8;
-            font-size: 16px;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 8px;
-        }
-
-        .top-nav {
-            position: absolute;
-            top: 24px;
-            right: 24px;
-            width: auto;
-            padding: 6px 14px;
-            font-size: 12px;
-            margin-top: 0;
-            background: rgba(51, 65, 85, 0.4);
-            border: 1px solid #475569;
-            box-shadow: none;
-        }
-
-        .top-nav:hover {
-            background: rgba(51, 65, 85, 0.8);
-        }
-
-        .badge-success {
-            color: #4ade80;
-            font-weight: 600;
-        }
-
-        .notice-text {
-            color: #facc15;
-            font-size: 13px;
-            margin-top: 12px;
-            padding-top: 8px;
-            border-top: 1px dashed #334155;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- Top Navigation Button to Switch Views -->
-        <button id="navBtn" class="top-nav" onclick="toggleStaffPortal()">Staff Portal</button>
-
-        <!-- CUSTOMER VIEW -->
-        <div id="customerSection">
-            <h2>ItemHunter AI Search</h2>
-            <p>Specify your item parameters, condition preferences, and price tier below.</p>
-            
-            <label for="itemQuery">What item are you hunting for?</label>
-            <input type="text" id="itemQuery" placeholder="e.g., Sony WH-1000XM5 Headphones">
-            
-            <label for="itemCondition">Preferred Condition</label>
-            <select id="itemCondition">
-                <option value="Any">Any Condition</option>
-                <option value="Brand New">Brand New / Sealed</option>
-                <option value="Like New">Like New / Open Box</option>
-                <option value="Refurbished">Certified Refurbished</option>
-                <option value="Used">Used / Good</option>
-            </select>
-
-            <label for="priceTier">Price Tier / Budget Range</label>
-            <select id="priceTier">
-                <option value="Budget">Budget / Economy</option>
-                <option value="Mid-Range" selected>Mid-Range (Standard)</option>
-                <option value="Premium">Premium / High-End</option>
-            </select>
-
-            <label for="targetPrice">Target Max Price ($)</label>
-            <input type="number" id="targetPrice" placeholder="e.g., 250">
-            
-            <label for="customerPhone">Your Phone Number</label>
-            <input type="text" id="customerPhone" placeholder="For staff callback">
-            
-            <label for="customerEmail">Your Email (Optional)</label>
-            <input type="email" id="customerEmail" placeholder="name@example.com">
-            
-            <button onclick="startAutoSearch()">Search Item Now</button>
-
-            <div id="searchResults" class="results" style="display:none;">
-                <h4>Live AI Results & Links</h4>
-                <div id="outputContent"></div>
-            </div>
-        </div>
-
-        <!-- STAFF LOGIN VIEW -->
-        <div id="loginSection" style="display:none;">
-            <h2>Staff Portal Login</h2>
-            <p>Please enter your credentials to access the secure staff dashboard.</p>
-            
-            <label for="staffUsername">Username</label>
-            <input type="text" id="staffUsername" placeholder="Enter Username" required>
-            
-            <label for="staffPin">Security PIN</label>
-            <input type="password" id="staffPin" placeholder="Enter PIN (e.g., 0710)" required>
-            
-            <button onclick="loginStaff()">Login</button>
-            <button class="secondary" onclick="toggleStaffPortal()">Back to Main Search</button>
-        </div>
-
-        <!-- STAFF DASHBOARD VIEW -->
-        <div id="staffDashboard" style="display:none;">
-            <h2>Staff Control Panel</h2>
-            <p class="badge-success">● Secure session active</p>
-            <p>Ready to monitor incoming requests and contact customers directly via phone or email.</p>
-            <button class="secondary" onclick="logoutStaff()">Log Out</button>
-        </div>
-    </div>
-
-    <script>
-        let isStaffView = false;
-
-        function toggleStaffPortal() {
-            isStaffView = !isStaffView;
-            document.getElementById('customerSection').style.display = isStaffView ? 'none' : 'block';
-            document.getElementById('loginSection').style.display = isStaffView ? 'block' : 'none';
-            document.getElementById('staffDashboard').style.display = 'none';
-            document.getElementById('navBtn').style.display = isStaffView ? 'none' : 'block';
-        }
-
-        function loginStaff() {
-            const user = document.getElementById('staffUsername').value;
-            const pin = document.getElementById('staffPin').value;
-            if(pin === "0710" && user.trim() !== "") {
-                document.getElementById('loginSection').style.display = 'none';
-                document.getElementById('staffDashboard').style.display = 'block';
-            } else {
-                alert("Invalid Username or PIN.");
-            }
-        }
-
-        function logoutStaff() {
-            document.getElementById('staffDashboard').style.display = 'none';
-            toggleStaffPortal();
-        }
-
-        async function startAutoSearch() {
-            const itemQuery = document.getElementById('itemQuery').value;
-            const itemCondition = document.getElementById('itemCondition').value;
-            const priceTier = document.getElementById('priceTier').value;
-            const targetPrice = document.getElementById('targetPrice').value;
-            const customerPhone = document.getElementById('customerPhone').value;
-            const customerEmail = document.getElementById('customerEmail').value;
-
-            if(!itemQuery) {
-                alert("Please enter an item to search.");
-                return;
-            }
-
-            document.getElementById('outputContent').innerHTML = "<span style='color: #38bdf8;'>AI is scanning live web listings...</span>";
-            document.getElementById('searchResults').style.display = 'block';
-
-            try {
-                const response = await fetch('/api/hunt-item', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ itemQuery, itemCondition, priceTier, targetPrice, customerPhone, customerEmail })
-                });
-                const data = await response.json();
-
-                if(data.success) {
-                    document.getElementById('outputContent').innerHTML = `
-                        <div style="line-height: 1.6; margin-bottom: 12px;">${data.results.replace(/\n/g, '<br>')}</div>
-                        <div style="margin-top: 15px;"><a href="${data.defaultLink}" target="_blank" style="color: #38bdf8; text-decoration: none; font-weight: 600;">🔗 Direct Web Search Link &rarr;</a></div>
-                        <div class="notice-text">${data.staffNotice}</div>
-                    `;
-                } else {
-                    document.getElementById('outputContent').innerHTML = "Search failed.";
-                }
-            } catch (err) {
-                document.getElementById('outputContent').innerHTML = "Error connecting to server.";
-            }
-        }
-    </script>
-</body>
-</html>
+            font-size: 11px;
+            font-weight: 70
