@@ -1,124 +1,509 @@
-const express = require('express');
-const path = require('path');
-const fs = require('fs');
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
-
-const ORDERS_FILE = path.join(__dirname, 'orders.json');
-
-function loadOrders() {
-    try {
-        if (fs.existsSync(ORDERS_FILE)) {
-            return JSON.parse(fs.readFileSync(ORDERS_FILE, 'utf8'));
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ItemHunter AI | Elite Sourcing Concierge</title>
+    <style>
+        :root {
+            --bg-color: #08090e;
+            --card-bg: rgba(18, 20, 31, 0.85);
+            --border-color: rgba(147, 51, 234, 0.2);
+            --primary-purple: #7c3aed;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
         }
-    } catch (e) {}
-    return [];
-}
-
-function saveOrders(orders) {
-    try {
-        fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2));
-    } catch (e) {}
-}
-
-app.get('/api/orders', (req, res) => {
-    const orders = loadOrders();
-    res.json({ success: true, orders });
-});
-
-app.post('/api/orders', (req, res) => {
-    const { name, contact, query, condition, budget, notes, packageName, fee } = req.body;
-    const orders = loadOrders();
-
-    const newOrder = {
-        id: Date.now().toString(),
-        name: name || "Anonymous",
-        contact: contact || "",
-        query: query || "",
-        condition: condition || "Brand New",
-        budget: budget || "Flexible",
-        notes: notes || "",
-        packageName: packageName || "Standard Search",
-        fee: fee || 30,
-        isPaid: false, // Default to Pending Payment for staff verification
-        status: 'Waiting',
-        directLink: '',
-        aiResults: '',
-        createdAt: new Date().toISOString()
-    };
-
-    orders.unshift(newOrder);
-    saveOrders(orders);
-    res.json({ success: true, order: newOrder });
-});
-
-app.post('/api/orders/update', (req, res) => {
-    const { id, isPaid, status, directLink, action } = req.body;
-    let orders = loadOrders();
-
-    if (action === 'delete') {
-        orders = orders.filter(o => o.id !== id);
-        saveOrders(orders);
-        return res.json({ success: true, orders });
-    }
-
-    orders = orders.map(o => {
-        if (o.id === id) {
-            if (isPaid !== undefined) o.isPaid = isPaid;
-            if (status !== undefined) o.status = status;
-            if (directLink !== undefined) o.directLink = directLink;
-        }
-        return o;
-    });
-
-    saveOrders(orders);
-    res.json({ success: true, orders });
-});
-
-app.post('/api/hunt-item', async (req, res) => {
-    const { orderId, itemQuery, targetPrice, duration } = req.body;
-    
-    try {
-        // Generate precise marketplace links instead of generic Google search
-        const cleanQuery = encodeURIComponent(itemQuery || "");
-        const ebayLink = `https://www.ebay.com/sch/i.html?_nkw=${cleanQuery}&_sacat=0`;
-        const kslLink = `https://www.ksl.com/classifieds/search?keyword=${cleanQuery}`;
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; padding: 0; }
         
-        const defaultLink = ebayLink; // Primary exact listing link for staff to send
+        header { position: sticky; top: 0; z-index: 1000; background: rgba(8, 9, 14, 0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; padding: 20px 48px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-icon { background: linear-gradient(135deg, #7c3aed, #4f46e5); padding: 10px; border-radius: 10px; color: white; font-weight: bold; }
+        .logo-text h1 { margin: 0; font-size: 20px; color: #fff; }
+        .logo-text span { font-size: 10px; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.1em; }
+        .btn-nav { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; z-index: 1001; }
+        .btn-nav:hover { background: rgba(255, 255, 255, 0.15); border-color: #7c3aed; }
         
-        const resultsText = `AI Sourcing & Deep Match Complete (${duration || '24 hours'} scan window).\n` +
-            `• Target Item: ${itemQuery}\n` +
-            `• Budget Ceiling: ${targetPrice || 'Flexible'}\n` +
-            `• Direct Marketplace Matches Compiled:\n` +
-            `  - eBay Active Listings: Verified matching inventory.\n` +
-            `  - KSL Classifieds / Regional: Local network check complete.\n` +
-            `• Status: Ready for direct dispatch to customer.`;
+        .hero { text-align: center; padding: 60px 20px 40px; max-width: 900px; margin: 0 auto; }
+        .hero h2 { font-size: 52px; font-weight: 800; margin: 0 0 20px 0; }
+        .hero h2 span { background: linear-gradient(135deg, #a78bfa, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .form-container { max-width: 800px; margin: 20px auto 80px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; padding: 40px; box-sizing: border-box; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group.full { grid-column: span 2; }
+        label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+        input, select { width: 100%; padding: 12px 16px; background: rgba(8, 9, 14, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 14px; box-sizing: border-box; }
+        
+        .package-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .package-card { background: rgba(8, 9, 14, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; cursor: pointer; position: relative; transition: all 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
+        .package-card.selected { border-color: #7c3aed; background: rgba(124, 58, 237, 0.08); }
+        .package-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .package-card h4 { margin: 0; font-size: 16px; color: #fff; }
+        .package-card .price { font-size: 20px; font-weight: 700; color: #a78bfa; margin-bottom: 8px; }
+        .package-card p { font-size: 12px; margin: 0; color: var(--text-muted); line-height: 1.4; }
+        .package-radio { accent-color: #7c3aed; width: 18px; height: 18px; cursor: pointer; }
 
-        let orders = loadOrders();
-        orders = orders.map(o => {
-            if (o.id === orderId) {
-                o.directLink = defaultLink;
-                o.aiResults = resultsText;
+        .btn-submit { width: 100%; background: linear-gradient(135deg, #7c3aed, #4f46e5); color: white; border: none; padding: 16px; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; box-shadow: 0 10px 20px -5px rgba(124, 58, 237, 0.4); }
+        
+        .staff-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 99999; justify-content: center; align-items: center; }
+        .staff-box { background: #12141f; border: 1px solid #7c3aed; padding: 40px; border-radius: 16px; width: 100%; max-width: 400px; box-sizing: border-box; text-align: left; }
+        
+        .stats-grid-staff { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }
+        .stat-box { background: rgba(8,9,14,0.6); border: 1px solid rgba(255,255,255,0.05); padding: 16px; border-radius: 10px; text-align: center; }
+        .stat-box h4 { margin: 0 0 5px 0; font-size: 20px; color: #a78bfa; }
+        .stat-box span { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
+        .order-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        .order-table th, .order-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); vertical-align: middle; }
+        .order-table th { color: #a78bfa; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; }
+        .btn-action { background: #7c3aed; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 600; margin-right: 4px; margin-bottom: 4px; }
+        .btn-action:hover { background: #6d28d9; }
+        .btn-delete { background: #ef4444; }
+        .btn-delete:hover { background: #dc2626; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <div class="logo-icon">AI</div>
+            <div class="logo-text">
+                <h1>ItemHunter AI</h1>
+                <span>Elite Sourcing Concierge</span>
+            </div>
+        </div>
+        <div>
+            <button class="btn-nav" id="staffPortalBtn" onclick="openPinModal()">Staff Portal</button>
+        </div>
+    </header>
+
+    <!-- Main Public Landing Page -->
+    <div id="publicMainContent">
+        <div class="hero">
+            <h2>We Hunt Down<br><span>Impossible-to-Find</span> Items.</h2>
+            <p style="color: var(--text-muted);">Our advanced AI scrapes Amazon, Facebook Marketplace, KSL Classifieds, eBay, and local networks instantly.</p>
+        </div>
+
+        <div class="form-container" id="requestFormSection">
+            <h3>Item Request Intake Form</h3>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 30px;">Fill out your specifications below to deploy our AI search engine.</p>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Your Full Name</label>
+                    <input type="text" id="customerName" placeholder="e.g., Sarah Jenkins">
+                </div>
+                <div class="form-group">
+                    <label>Email or Phone Number</label>
+                    <input type="text" id="customerContact" placeholder="e.g., (801) 555-0192">
+                </div>
+            </div>
+
+            <div class="form-group full">
+                <label>What is the item?</label>
+                <input type="text" id="itemQuery" placeholder="e.g., 2013 Honda Accord Front Bumper">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Specifics, Colors, Year & Details</label>
+                    <input type="text" id="itemSpecifics" placeholder="e.g., White Orchid Pearl">
+                </div>
+                <div class="form-group">
+                    <label>Acceptable Condition</label>
+                    <select id="itemCondition">
+                        <option value="Brand New">Brand New / Sealed</option>
+                        <option value="Like New">Like New / Open Box</option>
+                        <option value="Refurbished">Certified Refurbished</option>
+                        <option value="Used">Used / Good Condition</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Price Range / Max Budget ($)</label>
+                    <input type="text" id="targetPrice" placeholder="e.g., $300 - $450 max">
+                </div>
+                <div class="form-group">
+                    <label>Additional Notes</label>
+                    <input type="text" id="additionalNotes" placeholder="e.g., Local Utah pickup preferred">
+                </div>
+            </div>
+
+            <label style="margin-bottom: 12px; display: block;">Select Service Package</label>
+            <div class="package-grid">
+                <!-- Standard Card -->
+                <div class="package-card selected" id="cardStandard" onclick="selectPackage('Standard', 30)">
+                    <div class="package-header">
+                        <h4>Standard Search</h4>
+                        <input type="radio" name="package" class="package-radio" id="radioStandard" checked onclick="event.stopPropagation(); selectPackage('Standard', 30);">
+                    </div>
+                    <div class="price">$30 <span style="font-size:12px; color:#94a3b8; font-weight:normal;">service fee</span></div>
+                    <p>Scrapes Amazon, FB Marketplace, and KSL. 24–48h turnaround.</p>
+                </div>
+                <!-- Priority Card -->
+                <div class="package-card" id="cardPriority" onclick="selectPackage('Priority', 50)">
+                    <div class="package-header">
+                        <h4>Priority Deep Hunt</h4>
+                        <input type="radio" name="package" class="package-radio" id="radioPriority" onclick="event.stopPropagation(); selectPackage('Priority', 50);">
+                    </div>
+                    <div class="price">$50 <span style="font-size:12px; color:#94a3b8; font-weight:normal;">service fee</span></div>
+                    <p>Nationwide scrape + priority human broker verification.</p>
+                </div>
+            </div>
+
+            <button class="btn-submit" onclick="initiateCheckout()">Pay Service Fee & Submit Request →</button>
+
+            <!-- Success Notice Box shown to customer after payment -->
+            <div id="successNoticeBox" style="margin-top: 30px; background: rgba(8,9,14,0.9); border: 1px solid rgba(74,222,128,0.3); border-radius: 12px; padding: 24px; display: none; text-align: center;">
+                <h3 style="margin-top:0; color:#4ade80;">✓ Order Received & Payment Confirmed!</h3>
+                <p style="line-height: 1.6; color: #f8fafc; font-size: 14px;">
+                    Thank you! Our concierge team has received your request and payment. We are deploying our advanced search tools and will reach out to your contact number/email with direct links as soon as we find your item!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- VENMO PAYMENT MODAL SCREEN -->
+    <div class="staff-modal" id="venmoModal">
+        <div class="staff-box" style="text-align:center;">
+            <h3 style="margin-top:0; color:#fff;">Complete Payment via Venmo</h3>
+            <p style="color:var(--text-muted); font-size:13px; margin-bottom: 20px;">Scan or click below to pay your service fee (<span id="venmoFeeDisplay" style="color:#a78bfa; font-weight:bold;">$30</span>).</p>
+            <div style="background:#fff; padding:15px; border-radius:12px; display:inline-block; margin-bottom:20px;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://venmo.com" alt="Venmo QR" style="display:block; width:140px; height:140px;">
+            </div>
+            <p style="font-size:14px; color:#fff; margin-bottom:20px;">Venmo Handle: <strong style="color:#38bdf8;">@ItemHunterAI</strong></p>
+            <button class="btn-submit" onclick="confirmPaymentAndSubmit()">I Have Paid — Submit Order</button>
+            <button class="btn-nav" style="width:100%; margin-top:10px; background:transparent;" onclick="document.getElementById('venmoModal').style.display='none'">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Staff Control Dashboard View -->
+    <div id="staffDashboardView" style="display:none; max-width: 1100px; margin: 40px auto; padding: 40px; background: var(--card-bg); border-radius: 20px; border: 1px solid #7c3aed;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; margin-bottom: 25px;">
+            <div>
+                <h2 style="color: #a78bfa; margin: 0 0 5px 0;">Staff Control Panel & Financials</h2>
+                <p style="color: #4ade80; margin: 0; font-size: 13px;">● Secure session active (<span id="loggedUserDisplay"></span>)</p>
+            </div>
+            <button class="btn-nav" style="background: #7c3aed;" onclick="logoutStaff()">Log Out</button>
+        </div>
+
+        <!-- Weekly Financial & Queue Metrics -->
+        <div class="stats-grid-staff">
+            <div class="stat-box">
+                <h4 id="statWaitingMoney">$0</h4>
+                <span>Jobs Waiting (Revenue)</span>
+            </div>
+            <div class="stat-box">
+                <h4 id="statWaitingCount">0</h4>
+                <span>Jobs Waiting (Count)</span>
+            </div>
+            <div class="stat-box">
+                <h4 id="statDoneMoney">$0</h4>
+                <span>Jobs Done This Week</span>
+            </div>
+            <div class="stat-box">
+                <h4 id="statDoneCount">0</h4>
+                <span>Jobs Done (Count)</span>
+            </div>
+        </div>
+
+        <h3 style="color: #fff; margin-top: 30px;">Active Customer Orders & AI Sourcing Queue</h3>
+        <div style="overflow-x: auto;">
+            <table class="order-table">
+                <thead>
+                    <tr>
+                        <th>Customer & Contact</th>
+                        <th>Item & Details</th>
+                        <th>Package / Status</th>
+                        <th>AI Search Control</th>
+                        <th>Direct Link</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">No customer orders logged yet.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- STEP 1: PIN Prompt Modal -->
+    <div class="staff-modal" id="pinModal">
+        <div class="staff-box">
+            <h3 style="margin-top:0; color:#fff;">Enter Security PIN</h3>
+            <p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;">Please enter your access PIN to proceed.</p>
+            <label>Security PIN</label>
+            <input type="password" id="gatePin" placeholder="Enter PIN (e.g. 0710)" style="margin-bottom:25px;">
+            <button class="btn-submit" onclick="verifyPin()" style="margin-top:0;">Continue</button>
+            <button class="btn-nav" style="width:100%; margin-top:10px; background:transparent;" onclick="closeModals()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- STEP 2: Staff Account Login Screen -->
+    <div class="staff-modal" id="loginModal">
+        <div class="staff-box">
+            <h3 style="margin-top:0; color:#fff;">Staff Account Login</h3>
+            <p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;">PIN verified. Enter your staff account credentials.</p>
+            <label>Staff Username</label>
+            <input type="text" id="staffUser" placeholder="Username" style="margin-bottom:15px;">
+            <label>Staff Password</label>
+            <input type="password" id="staffPass" placeholder="Password" style="margin-bottom:25px;">
+            <button class="btn-submit" onclick="verifyStaffLogin()" style="margin-top:0;">Access Dashboard</button>
+            <button class="btn-nav" style="width:100%; margin-top:10px; background:transparent;" onclick="closeModals()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedPackageName = 'Standard Search';
+        let selectedPackageFee = 30;
+
+        function selectPackage(name, fee) {
+            selectedPackageName = name + ' Search';
+            selectedPackageFee = fee;
+
+            var cardStandard = document.getElementById('cardStandard');
+            var cardPriority = document.getElementById('cardPriority');
+            var radioStandard = document.getElementById('radioStandard');
+            var radioPriority = document.getElementById('radioPriority');
+
+            if (name === 'Standard') {
+                cardStandard.classList.add('selected');
+                cardPriority.classList.remove('selected');
+                if (radioStandard) radioStandard.checked = true;
+                if (radioPriority) radioPriority.checked = false;
+            } else {
+                cardPriority.classList.add('selected');
+                cardStandard.classList.remove('selected');
+                if (radioPriority) radioPriority.checked = true;
+                if (radioStandard) radioStandard.checked = false;
             }
-            return o;
-        });
-        saveOrders(orders);
+        }
 
-        res.json({
-            success: true,
-            results: resultsText,
-            defaultLink: defaultLink,
-            staffNotice: "AI search compiled precise marketplace listings successfully."
-        });
-    } catch (error) {
-        res.status(500).json({ success: false, error: "Search failed." });
-    }
-});
+        function initiateCheckout() {
+            var itemQuery = document.getElementById('itemQuery').value;
+            var customerContact = document.getElementById('customerContact').value;
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+            if(!itemQuery || !customerContact) {
+                alert("Please fill in your contact info and item description before proceeding to payment.");
+                return;
+            }
+
+            document.getElementById('venmoFeeDisplay').innerText = '$' + selectedPackageFee;
+            document.getElementById('venmoModal').style.setProperty('display', 'flex', 'important');
+        }
+
+        async function confirmPaymentAndSubmit() {
+            document.getElementById('venmoModal').style.display = 'none';
+
+            var customerName = document.getElementById('customerName').value || "Anonymous";
+            var customerContact = document.getElementById('customerContact').value;
+            var itemQuery = document.getElementById('itemQuery').value;
+            var itemSpecifics = document.getElementById('itemSpecifics').value;
+            var itemCondition = document.getElementById('itemCondition').value;
+            var targetPrice = document.getElementById('targetPrice').value;
+            var additionalNotes = document.getElementById('additionalNotes').value;
+
+            try {
+                var response = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: customerName,
+                        contact: customerContact,
+                        query: itemQuery + ' [' + itemSpecifics + ']',
+                        condition: itemCondition,
+                        budget: targetPrice || "Flexible",
+                        notes: additionalNotes,
+                        packageName: selectedPackageName,
+                        fee: selectedPackageFee
+                    })
+                });
+                var data = await response.json();
+
+                if(data.success) {
+                    document.getElementById('requestFormSection').style.display = 'none';
+                    document.getElementById('successNoticeBox').style.display = 'block';
+                } else {
+                    alert("Error submitting order.");
+                }
+            } catch (err) {
+                alert("Server connection error.");
+            }
+        }
+
+        function openPinModal() { 
+            var gatePin = document.getElementById('gatePin');
+            if(gatePin) gatePin.value = '';
+            var pinModal = document.getElementById('pinModal');
+            if(pinModal) {
+                pinModal.style.setProperty('display', 'flex', 'important');
+            }
+        }
+        
+        function closeModals() { 
+            var pinModal = document.getElementById('pinModal');
+            var loginModal = document.getElementById('loginModal');
+            if(pinModal) pinModal.style.display = 'none'; 
+            if(loginModal) loginModal.style.display = 'none';
+        }
+
+        function verifyPin() {
+            var pin = document.getElementById('gatePin').value;
+            if(pin === "0710") {
+                var pinModal = document.getElementById('pinModal');
+                if(pinModal) pinModal.style.display = 'none';
+                var staffUser = document.getElementById('staffUser');
+                var staffPass = document.getElementById('staffPass');
+                if(staffUser) staffUser.value = '';
+                if(staffPass) staffPass.value = '';
+                var loginModal = document.getElementById('loginModal');
+                if(loginModal) loginModal.style.setProperty('display', 'flex', 'important');
+            } else {
+                alert("Incorrect PIN (Hint: 0710)");
+            }
+        }
+
+        async function verifyStaffLogin() {
+            var user = document.getElementById('staffUser').value;
+            var pass = document.getElementById('staffPass').value;
+            
+            if(user.trim() !== "" && pass.trim() !== "") {
+                closeModals();
+                document.getElementById('publicMainContent').style.display = 'none';
+                document.getElementById('loggedUserDisplay').innerText = 'User: ' + user;
+                document.getElementById('staffDashboardView').style.display = 'block';
+                await loadAndRenderDashboard();
+            } else {
+                alert("Please enter both your staff username and password.");
+            }
+        }
+
+        function logoutStaff() {
+            document.getElementById('staffDashboardView').style.display = 'none';
+            document.getElementById('publicMainContent').style.display = 'block';
+            document.getElementById('staffUser').value = '';
+            document.getElementById('staffPass').value = '';
+        }
+
+        async function togglePayment(id, currentPaidState) {
+            try {
+                var response = await fetch('/api/orders/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id, isPaid: !currentPaidState })
+                });
+                var data = await response.json();
+                if(data.success) renderDashboardData(data.orders);
+            } catch(e) { alert("Error updating payment."); }
+        }
+
+        async function markDone(id) {
+            try {
+                var response = await fetch('/api/orders/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id, status: 'Done' })
+                });
+                var data = await response.json();
+                if(data.success) renderDashboardData(data.orders);
+            } catch(e) { alert("Error updating status."); }
+        }
+
+        async function deleteOrder(id) {
+            if(!confirm("Are you sure you want to remove this order?")) return;
+            try {
+                var response = await fetch('/api/orders/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id, action: 'delete' })
+                });
+                var data = await response.json();
+                if(data.success) renderDashboardData(data.orders);
+            } catch(e) { alert("Error deleting order."); }
+        }
+
+        async function triggerAISearchForOrder(id, query, budget) {
+            var duration = prompt("Enter AI search duration (e.g., '24 hours', '48 hours', '7 days'):", "24 hours");
+            if(!duration) return;
+
+            alert("AI Search deployed with duration: " + duration + ". Compiling marketplace listings...");
+
+            try {
+                var response = await fetch('/api/hunt-item', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        orderId: id,
+                        itemQuery: query,
+                        targetPrice: budget,
+                        duration: duration
+                    })
+                });
+                var data = await response.json();
+
+                if(data.success) {
+                    alert("AI Search completed! Exact marketplace listing link generated.");
+                    await loadAndRenderDashboard();
+                } else {
+                    alert("AI Search failed.");
+                }
+            } catch (err) {
+                alert("Error connecting to server backend.");
+            }
+        }
+
+        async function loadAndRenderDashboard() {
+            try {
+                var response = await fetch('/api/orders');
+                var data = await response.json();
+                if(data.success) {
+                    renderDashboardData(data.orders);
+                }
+            } catch(e) {}
+        }
+
+        function renderDashboardData(orders) {
+            var waitingMoney = 0;
+            var waitingCount = 0;
+            var doneMoney = 0;
+            var doneCount = 0;
+
+            orders.forEach(function(ord) {
+                var fee = parseInt(ord.fee) || 30;
+                if(ord.status === 'Waiting') {
+                    waitingMoney += fee;
+                    waitingCount++;
+                } else {
+                    doneMoney += fee;
+                    doneCount++;
+                }
+            });
+
+            document.getElementById('statWaitingMoney').innerText = '$' + waitingMoney;
+            document.getElementById('statWaitingCount').innerText = waitingCount;
+            document.getElementById('statDoneMoney').innerText = '$' + doneMoney;
+            document.getElementById('statDoneCount').innerText = doneCount;
+
+            var tbody = document.getElementById('ordersTableBody');
+            if(!tbody) return;
+
+            if(orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">No customer orders logged yet.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = orders.map(function(order) {
+                return '<tr>' +
+                    '<td><strong style="color:#fff;">' + order.name + '</strong><br><a href="tel:' + order.contact + '" style="color:#a78bfa; text-decoration:none; font-size:12px;">' + order.contact + '</a></td>' +
+                    '<td>' + order.query + ' (' + order.condition + ')<br><span style="color:#4ade80; font-size:12px;">Budget: ' + order.budget + '</span>' + (order.notes ? '<br><span style="color:var(--text-muted); font-size:11px;">Notes: ' + order.notes + '</span>' : '') + '</td>' +
+                    '<td><strong>' + order.packageName + '</strong> ($' + order.fee + ')<br><button class="btn-action" style="margin-top:4px; background:' + (order.isPaid ? '#4ade80' : '#facc15') + '; color:#08090e;" onclick="togglePayment(\'' + order.id + '\', ' + order.isPaid + ')">' + (order.isPaid ? '✓ Paid' : 'Pending Payment') + '</button></td>' +
+                    '<td><button class="btn-action" onclick="triggerAISearchForOrder(\'' + order.id + '\', \'' + order.query + '\', \'' + order.budget + '\')">🤖 Run AI Search</button><button class="btn-action" style="background:#0284c7;" onclick="markDone(\'' + order.id + '\')">Mark Done</button></td>' +
+                    '<td>' + (order.directLink ? '<a href="' + order.directLink + '" target="_blank" style="color:#38bdf8; font-weight:600; text-decoration:underline;">Send Link →</a>' : '<span style="color:var(--text-muted); font-size:12px;">Not generated yet</span>') + '<br><button class="btn-action btn-delete" style="margin-top:6px;" onclick="deleteOrder(\'' + order.id + '\')">Remove</button></td>' +
+                    '</tr>';
+            }).join('');
+        }
+    </script>
+</body>
+</html>
