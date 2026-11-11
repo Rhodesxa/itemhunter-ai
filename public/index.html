@@ -136,4 +136,338 @@
             <p style="color: #9ca3af; line-height: 1.5; font-size: 14px; max-width: 500px; margin: 0 auto 24px;">
                 Thank you! Your payment verification and item request have been safely received. We are actively running our search and will email or text you the exact listings as soon as they are verified!
             </p>
-            <button class="btn-submit" style="max-width
+            <button class="btn-submit" style="max-width: 280px; margin: 0 auto;" id="resetHomeBtn">Submit Another Request</button>
+        </div>
+    </div>
+
+    <div class="staff-modal" id="venmoModal">
+        <div class="staff-box" style="text-align:center;">
+            <h3 style="margin-top:0; color:#f9fafb; font-size:18px;">Complete Payment via Venmo</h3>
+            <p style="color:#9ca3af; font-size:12px; margin-bottom: 16px;">Scan or click below to pay your service fee (<span id="venmoFeeDisplay" style="color:#9ca3af; font-weight:bold;">$30</span>).</p>
+            <div style="background:#fff; padding:12px; border-radius:12px; display:inline-block; margin-bottom:16px;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=https://venmo.com" alt="Venmo QR" style="display:block; width:130px; height:130px;">
+            </div>
+            <p style="font-size:13px; color:#f9fafb; margin-bottom:16px;">Venmo Handle: <strong style="color:#9ca3af;">@ItemHunterAI</strong></p>
+            <button class="btn-submit" id="confirmVenmoBtn">I Have Paid — Submit Order</button>
+            <button class="btn-nav" style="width:100%; margin-top:10px; background:transparent;" id="cancelVenmoBtn">Cancel</button>
+        </div>
+    </div>
+
+    <div id="staffDashboardView" style="display:none; max-width: 1100px; margin: 20px auto; padding: 20px; background: #111827; border-radius: 12px; border: 1px solid #1f2937; width: 94%; box-sizing: border-box;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f2937; padding-bottom: 16px; margin-bottom: 20px;">
+            <div>
+                <h2 style="color: #f9fafb; margin: 0 0 4px 0; font-size: 18px;">Staff Control Panel</h2>
+                <p style="color: #4ade80; margin: 0; font-size: 12px;">● Session active (<span id="loggedUserDisplay"></span>)</p>
+            </div>
+            <button class="btn-nav" id="logoutStaffBtn">Log Out</button>
+        </div>
+
+        <div class="stats-grid-staff">
+            <div class="stat-box"><h4 id="statWaitingMoney">$0</h4><span>Jobs Waiting ($)</span></div>
+            <div class="stat-box"><h4 id="statWaitingCount">0</h4><span>Waiting (#)</span></div>
+            <div class="stat-box"><h4 id="statDoneMoney">$0</h4><span>Done ($)</span></div>
+            <div class="stat-box"><h4 id="statDoneCount">0</h4><span>Done (#)</span></div>
+        </div>
+
+        <h3 style="color: #f9fafb; margin-top: 20px; font-size: 16px;">Active Customer Orders Queue</h3>
+        <div style="overflow-x: auto;">
+            <table class="order-table">
+                <thead>
+                    <tr><th>Customer</th><th>Item & Details</th><th>Status</th><th>AI Search</th><th>Listing Links</th></tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                    <tr><td colspan="5" style="text-align: center; color: #9ca3af; padding: 24px;">No customer orders logged yet.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="staff-modal" id="pinModal">
+        <div class="staff-box">
+            <h3 style="margin-top:0; color:#f9fafb; font-size:18px;">Enter Security PIN</h3>
+            <p style="color:#9ca3af; font-size:12px; margin-bottom:12px;">Please enter your access PIN to proceed.</p>
+            <label>Security PIN</label>
+            <input type="password" id="gatePin" placeholder="••••" style="margin-bottom:20px;">
+            <button class="btn-submit" id="submitPinBtn" style="margin-top:0;">Continue</button>
+            <button class="btn-nav" style="width:100%; margin-top:10px; background:transparent;" id="cancelPinBtn">Cancel</button>
+        </div>
+    </div>
+
+    <div class="staff-modal" id="loginModal">
+        <div class="staff-box">
+            <h3 style="margin-top:0; color:#f9fafb; font-size:18px;">Staff Login</h3>
+            <p style="color:#9ca3af; font-size:12px; margin-bottom:12px;">PIN verified. Enter your staff credentials.</p>
+            <label>Username</label>
+            <input type="text" id="staffUser" placeholder="Username" style="margin-bottom:12px;">
+            <label>Password</label>
+            <input type="password" id="staffPass" placeholder="Password" style="margin-bottom:20px;">
+            <button class="btn-submit" id="submitLoginBtn" style="margin-top:0;">Access Dashboard</button>
+            <button class="btn-nav" style="width:100%; margin-top:10px; background:transparent;" id="cancelLoginBtn">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedPackageName = 'Standard Search';
+        let selectedPackageFee = 30;
+
+        function goHome() {
+            document.getElementById('staffDashboardView').style.display = 'none';
+            document.getElementById('publicMainContent').style.display = 'block';
+            document.getElementById('thankYouSection').style.display = 'none';
+            document.getElementById('requestFormSection').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function selectPackage(name, fee) {
+            selectedPackageName = name + ' Search';
+            selectedPackageFee = fee;
+            var cardStandard = document.getElementById('cardStandard');
+            var cardPriority = document.getElementById('cardPriority');
+            if (name === 'Standard') {
+                cardStandard.classList.add('selected');
+                cardPriority.classList.remove('selected');
+            } else {
+                cardPriority.classList.add('selected');
+                cardStandard.classList.remove('selected');
+            }
+        }
+
+        function initiateCheckout() {
+            var itemQuery = document.getElementById('itemQuery').value;
+            var customerContact = document.getElementById('customerContact').value;
+            if(!itemQuery || !customerContact) {
+                alert("Please fill in your contact info and item description before proceeding.");
+                return;
+            }
+            document.getElementById('venmoFeeDisplay').innerText = '$' + selectedPackageFee;
+            document.getElementById('venmoModal').style.setProperty('display', 'flex', 'important');
+        }
+
+        async function confirmPaymentAndSubmit() {
+            document.getElementById('venmoModal').style.display = 'none';
+            var customerName = document.getElementById('customerName').value || "Anonymous";
+            var customerContact = document.getElementById('customerContact').value;
+            var itemQuery = document.getElementById('itemQuery').value;
+            var itemSpecifics = document.getElementById('itemSpecifics').value;
+            var itemCondition = document.getElementById('itemCondition').value;
+            var targetPrice = document.getElementById('targetPrice').value;
+            var additionalNotes = document.getElementById('additionalNotes').value;
+
+            try {
+                var response = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: customerName,
+                        contact: customerContact,
+                        query: itemQuery + ' [' + itemSpecifics + ']',
+                        condition: itemCondition,
+                        budget: targetPrice || "Flexible",
+                        notes: additionalNotes,
+                        packageName: selectedPackageName,
+                        fee: selectedPackageFee
+                    })
+                });
+                var data = await response.json();
+                if(data.success) {
+                    document.getElementById('requestFormSection').style.display = 'none';
+                    document.getElementById('thankYouSection').style.display = 'block';
+                } else {
+                    alert("Error submitting order.");
+                }
+            } catch (err) {
+                alert("Server connection error.");
+            }
+        }
+
+        function resetToHome() {
+            document.getElementById('thankYouSection').style.display = 'none';
+            document.getElementById('requestFormSection').style.display = 'block';
+            document.getElementById('customerName').value = '';
+            document.getElementById('customerContact').value = '';
+            document.getElementById('itemQuery').value = '';
+            document.getElementById('itemSpecifics').value = '';
+            document.getElementById('targetPrice').value = '';
+            document.getElementById('additionalNotes').value = '';
+        }
+
+        function openPinModal() { 
+            var gatePin = document.getElementById('gatePin');
+            if(gatePin) gatePin.value = '';
+            var pinModal = document.getElementById('pinModal');
+            if(pinModal) {
+                pinModal.style.setProperty('display', 'flex', 'important');
+                if(gatePin) gatePin.focus();
+            }
+        }
+        
+        function closeModals() { 
+            var pinModal = document.getElementById('pinModal');
+            var loginModal = document.getElementById('loginModal');
+            var venmoModal = document.getElementById('venmoModal');
+            if(pinModal) pinModal.style.display = 'none'; 
+            if(loginModal) loginModal.style.display = 'none';
+            if(venmoModal) venmoModal.style.display = 'none';
+        }
+
+        function verifyPin() {
+            var pin = document.getElementById('gatePin').value;
+            if(pin === "0710") {
+                document.getElementById('pinModal').style.display = 'none';
+                document.getElementById('staffUser').value = '';
+                document.getElementById('staffPass').value = '';
+                var loginModal = document.getElementById('loginModal');
+                loginModal.style.setProperty('display', 'flex', 'important');
+                document.getElementById('staffUser').focus();
+            } else {
+                alert("Incorrect PIN");
+            }
+        }
+
+        async function verifyStaffLogin() {
+            var user = document.getElementById('staffUser').value;
+            var pass = document.getElementById('staffPass').value;
+            if(user.trim() !== "" && pass.trim() !== "") {
+                closeModals();
+                document.getElementById('publicMainContent').style.display = 'none';
+                document.getElementById('loggedUserDisplay').innerText = user;
+                document.getElementById('staffDashboardView').style.display = 'block';
+                await loadAndRenderDashboard();
+            } else {
+                alert("Please enter both your staff username and password.");
+            }
+        }
+
+        function logoutStaff() {
+            document.getElementById('staffDashboardView').style.display = 'none';
+            document.getElementById('publicMainContent').style.display = 'block';
+            document.getElementById('staffUser').value = '';
+            document.getElementById('staffPass').value = '';
+        }
+
+        async function togglePayment(id, currentPaidState) {
+            try {
+                var response = await fetch('/api/orders/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id, isPaid: !currentPaidState })
+                });
+                var data = await response.json();
+                if(data.success) renderDashboardData(data.orders);
+            } catch(e) { alert("Error updating payment."); }
+        }
+
+        async function markDone(id) {
+            try {
+                var response = await fetch('/api/orders/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id, status: 'Done' })
+                });
+                var data = await response.json();
+                if(data.success) renderDashboardData(data.orders);
+            } catch(e) { alert("Error updating status."); }
+        }
+
+        async function deleteOrder(id) {
+            if(!confirm("Are you sure you want to remove this order?")) return;
+            try {
+                var response = await fetch('/api/orders/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id, action: 'delete' })
+                });
+                var data = await response.json();
+                if(data.success) renderDashboardData(data.orders);
+            } catch(e) { alert("Error deleting order."); }
+        }
+
+        async function triggerAISearchForOrder(id, query, budget) {
+            alert("Deploying instant multi-platform AI scan across eBay, Amazon, Walmart, KSL, and Facebook...");
+            try {
+                var response = await fetch('/api/hunt-item', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderId: id, itemQuery: query, targetPrice: budget })
+                });
+                var data = await response.json();
+                if(data.success) {
+                    alert("AI search complete! Mainstream listing options generated.");
+                    await loadAndRenderDashboard();
+                } else {
+                    alert("AI Search failed.");
+                }
+            } catch (err) {
+                alert("Error connecting to server backend.");
+            }
+        }
+
+        async function loadAndRenderDashboard() {
+            try {
+                var response = await fetch('/api/orders');
+                var data = await response.json();
+                if(data.success) renderDashboardData(data.orders);
+            } catch(e) {}
+        }
+
+        function renderDashboardData(orders) {
+            var waitingMoney = 0, waitingCount = 0, doneMoney = 0, doneCount = 0;
+            orders.forEach(function(ord) {
+                var fee = parseInt(ord.fee) || 30;
+                if(ord.status === 'Waiting') { waitingMoney += fee; waitingCount++; }
+                else { doneMoney += fee; doneCount++; }
+            });
+            document.getElementById('statWaitingMoney').innerText = '$' + waitingMoney;
+            document.getElementById('statWaitingCount').innerText = waitingCount;
+            document.getElementById('statDoneMoney').innerText = '$' + doneMoney;
+            document.getElementById('statDoneCount').innerText = doneCount;
+
+            var tbody = document.getElementById('ordersTableBody');
+            if(!tbody) return;
+            if(orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #9ca3af; padding: 24px;">No customer orders logged yet.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = orders.map(function(order) {
+                var linksHtml = '<span style="color:#9ca3af; font-size:12px;">Not generated yet</span>';
+                if (order.directLinks && order.directLinks.length > 0) {
+                    linksHtml = order.directLinks.map(function(l) {
+                        return '<div style="margin-bottom:6px;"><a href="' + l.url + '" target="_blank" style="color:#9ca3af; font-weight:600; text-decoration:underline; font-size:12px;">' + l.label + ' →</a></div>';
+                    }).join('');
+                }
+                return '<tr>' +
+                    '<td><strong style="color:#f9fafb;">' + order.name + '</strong><br><a href="tel:' + order.contact + '" style="color:#9ca3af; text-decoration:none; font-size:12px;">' + order.contact + '</a></td>' +
+                    '<td>' + order.query + ' (' + order.condition + ')<br><span style="color:#4ade80; font-size:12px;">Budget: ' + order.budget + '</span>' + (order.notes ? '<br><span style="color:#9ca3af; font-size:11px;">Notes: ' + order.notes + '</span>' : '') + '</td>' +
+                    '<td><strong>' + order.packageName + '</strong> ($' + order.fee + ')<br><button class="btn-action" style="margin-top:4px; background:' + (order.isPaid ? '#16a34a' : '#d97706') + '; color:#fff;" onclick="togglePayment(\'' + order.id + '\', ' + order.isPaid + ')">' + (order.isPaid ? '✓ Paid' : 'Pending Payment') + '</button></td>' +
+                    '<td><button class="btn-action" onclick="triggerAISearchForOrder(\'' + order.id + '\', \'' + order.query.replace(/'/g, "\\'") + '\', \'' + order.budget + '\')">🤖 Run AI Search</button><button class="btn-action" style="background:#0284c7;" onclick="markDone(\'' + order.id + '\')">Mark Done</button></td>' +
+                    '<td>' + linksHtml + '<button class="btn-action" style="background:#7f1d1d; margin-top:6px;" onclick="deleteOrder(\'' + order.id + '\')">Remove</button></td>' +
+                    '</tr>';
+            }).join('');
+        }
+
+        // Safe Event Listeners Binding (Guaranteed execution on load)
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('logoHomeBtn').addEventListener('click', goHome);
+            document.getElementById('staffPortalBtn').addEventListener('click', openPinModal);
+            document.getElementById('cardStandard').addEventListener('click', function() { selectPackage('Standard', 30); });
+            document.getElementById('cardPriority').addEventListener('click', function() { selectPackage('Priority', 50); });
+            document.getElementById('submitRequestBtn').addEventListener('click', initiateCheckout);
+            document.getElementById('resetHomeBtn').addEventListener('click', resetToHome);
+            document.getElementById('confirmVenmoBtn').addEventListener('click', confirmPaymentAndSubmit);
+            document.getElementById('cancelVenmoBtn').addEventListener('click', closeModals);
+            document.getElementById('logoutStaffBtn').addEventListener('click', logoutStaff);
+            document.getElementById('submitPinBtn').addEventListener('click', verifyPin);
+            document.getElementById('cancelPinBtn').addEventListener('click', closeModals);
+            document.getElementById('submitLoginBtn').addEventListener('click', verifyStaffLogin);
+            document.getElementById('cancelLoginBtn').addEventListener('click', closeModals);
+
+            document.getElementById('gatePin').addEventListener('keydown', function(e) {
+                if(e.key === 'Enter') verifyPin();
+            });
+            document.getElementById('staffPass').addEventListener('keydown', function(e) {
+                if(e.key === 'Enter') verifyStaffLogin();
+            });
+        });
+    </script>
+</body>
+</html>
