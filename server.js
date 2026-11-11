@@ -1,125 +1,74 @@
-// server.js - Node.js Backend for ItemHunter AI
 const express = require('express');
 const nodemailer = require('nodemailer');
+const OpenAI = require('openai');
+const path = require('path');
+
 const app = express();
-const PORT = process.env.PORT || 3000;
-
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
-let adminSettings = {
-    venmoHandle: '@ItemHunterAI',
-    senderEmail: 'notifications@itemhunter.ai',
-    smtpPass: 'your-email-app-password'
-};
+// Initialize OpenAI (uses the OPENAI_API_KEY environment variable on Render)
+const openai = new OpenAI();
 
-let staffUsers = [
-    { id: '1', username: 'XRhodes', password: '141500', title: 'Lead Broker / Owner', control: 'Full Access (Admin)' },
-    { id: '2', username: 'SupportAgent', password: 'password123', title: 'Customer Support Lead', control: 'Order Management Only' }
-];
-
-let orders = [];
-
-// Settings Endpoints
-app.get('/api/admin/settings', (req, res) => {
-    res.json(adminSettings);
-});
-
-app.post('/api/admin/settings', (req, res) => {
-    const { venmoHandle, senderEmail } = req.body;
-    if (venmoHandle) adminSettings.venmoHandle = venmoHandle;
-    if (senderEmail) adminSettings.senderEmail = senderEmail;
-    res.json({ success: true, message: 'Settings updated successfully!', settings: adminSettings });
-});
-
-// Staff Login Authentication Endpoint
-app.post('/api/admin/login', (req, res) => {
-    const { username, password } = req.body;
-    const user = staffUsers.find(s => s.username === username && s.password === password);
-    if (user) {
-        res.json({ success: true, user });
-    } else {
-        res.status(401).json({ success: false, message: 'Invalid username or password' });
+// Configure Nodemailer (uses environment variables for secure email dispatches)
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 });
 
-// Staff Management Endpoints
-app.get('/api/admin/staff', (req, res) => {
-    res.json(staffUsers);
-});
+// Endpoint to automatically trigger the item hunt and AI search
+app.post('/api/hunt-item', async (req, res) => {
+    try {
+        const { itemQuery, targetPrice, customerPhone, customerEmail } = req.body;
 
-app.post('/api/admin/staff', (req, res) => {
-    const { username, password, title, control } = req.body;
-    const newStaff = {
-        id: Date.now().toString(),
-        username,
-        password,
-        title: title || 'Staff Member',
-        control: control || 'Standard Control'
-    };
-    staffUsers.push(newStaff);
-    res.json({ success: true, staff: newStaff });
-});
+        // Use OpenAI to find real listings, prices, and direct URLs
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+                {
+                    role: "system",
+                    content: "You are ItemHunter AI, an expert procurement agent. Find real online listings, store names, estimated market prices, and direct clickable web URLs matching the user's target criteria."
+                },
+                {
+                    role: "user",
+                    content: `Find live availability and pricing for: "${itemQuery}" with a target max price of $${targetPrice}. Provide results with titles, prices, and direct URLs.`
+                }
+            ]
+        });
 
-app.delete('/api/admin/staff/:id', (req, res) => {
-    staffUsers = staffUsers.filter(s => s.id !== req.params.id);
-    res.json({ success: true });
-});
+        const aiFindings = completion.choices[0].message.content;
+        const fallbackLink = `https://www.google.com/search?q=${encodeURIComponent(itemQuery + " buy online")}`;
 
-// Order Endpoints
-app.get('/api/orders', (req, res) => {
-    res.json(orders);
-});
+        // Correct staff notification prompting staff to contact the customer via phone number
+        const staffNotificationText = `New ItemHunter AI Match! Please contact the customer directly at phone number: ${customerPhone || 'Not provided'} or email: ${customerEmail || 'Not provided'}.`;
 
-app.post('/api/orders', (req, res) => {
-    const { clientName, clientContact, itemName, specifics, condition, budget, tier, hours } = req.body;
-    const orderId = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
-    const newOrder = {
-        id: orderId,
-        clientName,
-        clientContact,
-        itemName,
-        specifics,
-        condition,
-        budget,
-        tier,
-        hours,
-        date: new Date().toISOString().replace('T', ' ').substring(0, 16),
-        status: `Multi-AI Scraping Active (${hours}-Hour Deep Search)`,
-        paid: false,
-        matches: []
-    };
-    orders.unshift(newOrder);
-    simulateAISearch(newOrder);
-    res.json({ success: true, order: newOrder, venmoHandle: adminSettings.venmoHandle });
-});
+        // Optional email dispatch simulation
+        if (process.env.EMAIL_USER && customerEmail) {
+            await transporter.sendMail({
+                from: process.env.EMAIL_USER,
+                to: customerEmail,
+                subject: `ItemHunter AI Update: ${itemQuery}`,
+                text: `We found matches for your item! ${aiFindings}`
+            });
+        }
 
-app.patch('/api/orders/:id/pay', (req, res) => {
-    const order = orders.find(o => o.id === req.params.id);
-    if (order) {
-        order.paid = !order.paid;
-        res.json({ success: true, order });
-    } else {
-        res.status(404).json({ success: false });
+        res.json({
+            success: true,
+            results: aiFindings,
+            defaultLink: fallbackLink,
+            staffNotice: staffNotificationText
+        });
+
+    } catch (error) {
+        console.error("AI Search Error:", error);
+        res.status(500).json({ success: false, error: "Failed to execute AI live search." });
     }
 });
 
-app.delete('/api/orders/:id', (req, res) => {
-    orders = orders.filter(o => o.id !== req.params.id);
-    res.json({ success: true });
-});
-
-function simulateAISearch(order) {
-    setTimeout(() => {
-        const targetOrder = orders.find(o => o.id === order.id);
-        if (!targetOrder) return;
-        targetOrder.status = 'Scraped & Verified by AI';
-        targetOrder.matches = [
-            { source: 'KSL Classifieds', title: `${targetOrder.itemName} (${targetOrder.specifics})`, price: '$125', contact: '(801) 555-0199', flag: 'FLAG: Needs Human Staff Member to Text This Number Directly', location: 'Salt Lake City, UT' }
-        ];
-    }, 10000);
-}
-
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`ItemHunter AI Server running on http://localhost:${PORT}`);
+    console.log(`ItemHunter AI Server running on port ${PORT}`);
 });
