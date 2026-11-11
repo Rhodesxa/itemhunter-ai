@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ItemHunter AI | Elite Sourcing Concierge</title>
+    <!-- Browser Tab Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.png">
     <style>
         :root {
             --bg-color: #08090e;
@@ -17,9 +19,8 @@
         
         header { position: sticky; top: 0; z-index: 1000; background: rgba(8, 9, 14, 0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; padding: 15px 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
         .logo-area { display: flex; align-items: center; gap: 10px; }
-        .logo-icon { background: linear-gradient(135deg, #7c3aed, #4f46e5); padding: 8px 12px; border-radius: 8px; color: white; font-weight: bold; font-size: 14px; }
-        .logo-text h1 { margin: 0; font-size: 16px; color: #fff; }
-        .logo-text span { font-size: 9px; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.1em; }
+        .header-logo { height: 38px; width: auto; display: block; }
+        
         .btn-nav { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
         .btn-nav:hover { background: rgba(255, 255, 255, 0.15); border-color: #7c3aed; }
         
@@ -54,7 +55,6 @@
         .stat-box h4 { margin: 0 0 4px 0; font-size: 18px; color: #a78bfa; }
         .stat-box span { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
         
-        /* Responsive Staff Table / Cards */
         .order-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
         .order-table th, .order-table td { padding: 12px 8px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); vertical-align: middle; }
         .order-table th { color: #a78bfa; text-transform: uppercase; font-size: 10px; letter-spacing: 0.05em; }
@@ -63,7 +63,6 @@
         .btn-delete { background: #ef4444; }
         .btn-delete:hover { background: #dc2626; }
 
-        /* Mobile Adjustments */
         @media (max-width: 768px) {
             header { padding: 12px 16px; }
             .hero h2 { font-size: 28px; }
@@ -73,7 +72,6 @@
             .form-container { padding: 16px; width: 95%; margin: 10px auto 40px; }
             .stats-grid-staff { grid-template-columns: repeat(2, 1fr); }
             
-            /* Transform staff table into vertical cards on mobile for readability */
             .order-table thead { display: none; }
             .order-table, .order-table tbody, .order-table tr, .order-table td { display: block; width: 100%; box-sizing: border-box; }
             .order-table tr { background: rgba(8, 9, 14, 0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; margin-bottom: 16px; padding: 14px; }
@@ -86,11 +84,8 @@
 
     <header>
         <div class="logo-area">
-            <div class="logo-icon">AI</div>
-            <div class="logo-text">
-                <h1>ItemHunter AI</h1>
-                <span>Elite Sourcing Concierge</span>
-            </div>
+            <!-- Header Logo Image -->
+            <img src="/logo.png" alt="ItemHunter AI" class="header-logo">
         </div>
         <div>
             <button class="btn-nav" id="staffPortalBtn" onclick="openPinModal()">Staff Portal</button>
