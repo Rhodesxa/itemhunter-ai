@@ -143,4 +143,14 @@
     <div class="staff-modal" id="venmoModal">
         <div class="staff-box" style="text-align:center;">
             <h3 style="margin-top:0; color:#f9fafb; font-size:18px;">Complete Payment via Venmo</h3>
-            <p style="color:#9ca3af; font-size:12px; margin-bottom: 16px;">Scan or click below to pay your service fee (<span id="venmoFeeDisplay" style="color:#9ca3af;
+            <p style="color:#9ca3af; font-size:12px; margin-bottom: 16px;">Scan or click below to pay your service fee (<span id="venmoFeeDisplay" style="color:#9ca3af; font-weight:bold;">$30</span>).</p>
+            <div style="background:#fff; padding:12px; border-radius:12px; display:inline-block; margin-bottom:16px;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=https://venmo.com" alt="Venmo QR" style="display:block; width:130px; height:130px;">
+            </div>
+            <p style="font-size:13px; color:#f9fafb; margin-bottom:16px;">Venmo Handle: <strong style="color:#9ca3af;">@ItemHunterAI</strong></p>
+            <button class="btn-submit" onclick="confirmPaymentAndSubmit()">I Have Paid — Submit Order</button>
+            <button class="btn-nav" style="width:100%; margin-top:10px; background:transparent;" onclick="document.getElementById('venmoModal').style.display='none'">Cancel</button>
+        </div>
+    </div>
+
+    <div id="staffDashboardView" style="display:none; max-width: 1100px; margin: 20px auto; padding: 20px; background: #111827; border-
