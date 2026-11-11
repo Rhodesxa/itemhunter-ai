@@ -30,7 +30,7 @@
 
         .container {
             width: 100%;
-            max-width: 600px;
+            max-width: 650px;
             background: var(--card-bg);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
@@ -64,7 +64,7 @@
             margin-top: 14px;
         }
 
-        input {
+        input, select {
             width: 100%;
             padding: 12px 16px;
             background: rgba(15, 23, 42, 0.6);
@@ -76,10 +76,15 @@
             transition: all 0.2s ease;
         }
 
-        input:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: #38bdf8;
             box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        select option {
+            background: #0f172a;
+            color: #fff;
         }
 
         button {
@@ -165,117 +170,18 @@
         <!-- Top Navigation Button to Switch Views -->
         <button id="navBtn" class="top-nav" onclick="toggleStaffPortal()">Staff Portal</button>
 
-        <!-- CUSTOMER VIEW (Loaded by default) -->
+        <!-- CUSTOMER VIEW -->
         <div id="customerSection">
             <h2>ItemHunter AI Search</h2>
-            <p>Find real-world availability, prices, and direct purchase links instantly.</p>
+            <p>Specify your item parameters, condition preferences, and price tier below.</p>
             
             <label for="itemQuery">What item are you hunting for?</label>
             <input type="text" id="itemQuery" placeholder="e.g., Sony WH-1000XM5 Headphones">
             
-            <label for="targetPrice">Target Max Price ($)</label>
-            <input type="number" id="targetPrice" placeholder="e.g., 250">
-            
-            <label for="customerPhone">Your Phone Number</label>
-            <input type="text" id="customerPhone" placeholder="For staff callback">
-            
-            <label for="customerEmail">Your Email (Optional)</label>
-            <input type="email" id="customerEmail" placeholder="name@example.com">
-            
-            <button onclick="startAutoSearch()">Search Item Now</button>
-
-            <div id="searchResults" class="results" style="display:none;">
-                <h4>Live AI Results & Links</h4>
-                <div id="outputContent"></div>
-            </div>
-        </div>
-
-        <!-- STAFF LOGIN VIEW (Hidden by default) -->
-        <div id="loginSection" style="display:none;">
-            <h2>Staff Portal Login</h2>
-            <p>Please enter your credentials to access the secure staff dashboard.</p>
-            
-            <label for="staffUsername">Username</label>
-            <input type="text" id="staffUsername" placeholder="Enter Username" required>
-            
-            <label for="staffPin">Security PIN</label>
-            <input type="password" id="staffPin" placeholder="Enter PIN (e.g., 0710)" required>
-            
-            <button onclick="loginStaff()">Login</button>
-            <button class="secondary" onclick="toggleStaffPortal()">Back to Main Search</button>
-        </div>
-
-        <!-- STAFF DASHBOARD VIEW (Shown after successful login) -->
-        <div id="staffDashboard" style="display:none;">
-            <h2>Staff Control Panel</h2>
-            <p class="badge-success">● Secure session active</p>
-            <p>Ready to monitor incoming requests and contact customers directly via phone or email.</p>
-            <button class="secondary" onclick="logoutStaff()">Log Out</button>
-        </div>
-    </div>
-
-    <script>
-        let isStaffView = false;
-
-        function toggleStaffPortal() {
-            isStaffView = !isStaffView;
-            document.getElementById('customerSection').style.display = isStaffView ? 'none' : 'block';
-            document.getElementById('loginSection').style.display = isStaffView ? 'block' : 'none';
-            document.getElementById('staffDashboard').style.display = 'none';
-            document.getElementById('navBtn').style.display = isStaffView ? 'none' : 'block';
-        }
-
-        function loginStaff() {
-            const user = document.getElementById('staffUsername').value;
-            const pin = document.getElementById('staffPin').value;
-            if(pin === "0710" && user.trim() !== "") {
-                document.getElementById('loginSection').style.display = 'none';
-                document.getElementById('staffDashboard').style.display = 'block';
-            } else {
-                alert("Invalid Username or PIN.");
-            }
-        }
-
-        function logoutStaff() {
-            document.getElementById('staffDashboard').style.display = 'none';
-            toggleStaffPortal();
-        }
-
-        async function startAutoSearch() {
-            const itemQuery = document.getElementById('itemQuery').value;
-            const targetPrice = document.getElementById('targetPrice').value;
-            const customerPhone = document.getElementById('customerPhone').value;
-            const customerEmail = document.getElementById('customerEmail').value;
-
-            if(!itemQuery) {
-                alert("Please enter an item to search.");
-                return;
-            }
-
-            document.getElementById('outputContent').innerHTML = "<span style='color: #38bdf8;'>AI is scanning live web listings...</span>";
-            document.getElementById('searchResults').style.display = 'block';
-
-            try {
-                const response = await fetch('/api/hunt-item', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ itemQuery, targetPrice, customerPhone, customerEmail })
-                });
-                const data = await response.json();
-
-                if(data.success) {
-                    document.getElementById('outputContent').innerHTML = `
-                        <div style="line-height: 1.6; margin-bottom: 12px;">${data.results.replace(/\n/g, '<br>')}</div>
-                        <div style="margin-top: 15px;"><a href="${data.defaultLink}" target="_blank" style="color: #38bdf8; text-decoration: none; font-weight: 600;">🔗 Direct Web Search Link &rarr;</a></div>
-                        <div class="notice-text">${data.staffNotice}</div>
-                    `;
-                } else {
-                    document.getElementById('outputContent').innerHTML = "Search failed.";
-                }
-            } catch (err) {
-                document.getElementById('outputContent').innerHTML = "Error connecting to server.";
-            }
-        }
-    </script>
-</body>
-</html>
+            <label for="itemCondition">Preferred Condition</label>
+            <select id="itemCondition">
+                <option value="Any">Any Condition</option>
+                <option value="Brand New">Brand New / Sealed</option>
+                <option value="Like New">Like New / Open Box</option>
+                <option value="Refurbished">Certified Refurbished</option>
+                <option value="Used">Used / Good
