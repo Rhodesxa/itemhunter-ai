@@ -32,6 +32,11 @@
         .btn-submit { width: 100%; background: linear-gradient(135deg, #7c3aed, #4f46e5); color: white; border: none; padding: 16px; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; }
         .staff-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; }
         .staff-box { background: #12141f; border: 1px solid #7c3aed; padding: 40px; border-radius: 16px; width: 100%; max-width: 400px; box-sizing: border-box; }
+        
+        /* Staff Dashboard Tables */
+        .order-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+        .order-table th, .order-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .order-table th { color: #a78bfa; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; }
     </style>
 </head>
 <body>
@@ -112,19 +117,44 @@
         </div>
     </div>
 
-    <!-- Staff Control Dashboard View (Shown after full login) -->
-    <div id="staffDashboardView" style="display:none; max-width: 800px; margin: 60px auto; padding: 40px; background: var(--card-bg); border-radius: 20px; border: 1px solid #7c3aed;">
-        <h2 style="color: #a78bfa; margin-top: 0;">Staff Control Panel</h2>
-        <p style="color: #4ade80;">● Secure session active (<span id="loggedUserDisplay"></span>)</p>
-        <p style="color: var(--text-muted);">Manage customer logs, review incoming lead submissions, and coordinate customer call-backs.</p>
-        <button class="btn-nav" style="margin-top: 20px; background: #7c3aed;" onclick="logoutStaff()">Log Out / Return to Main</button>
+    <!-- Staff Control Dashboard View (With Orders & Leads) -->
+    <div id="staffDashboardView" style="display:none; max-width: 1000px; margin: 40px auto; padding: 40px; background: var(--card-bg); border-radius: 20px; border: 1px solid #7c3aed;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; margin-bottom: 20px;">
+            <div>
+                <h2 style="color: #a78bfa; margin: 0 0 5px 0;">Staff Control Panel</h2>
+                <p style="color: #4ade80; margin: 0; font-size: 13px;">● Secure session active (<span id="loggedUserDisplay"></span>)</p>
+            </div>
+            <button class="btn-nav" style="background: #7c3aed;" onclick="logoutStaff()">Log Out</button>
+        </div>
+
+        <h3 style="color: #fff; margin-top: 20px;">Incoming Customer Orders & Lead Submissions</h3>
+        <p style="color: var(--text-muted); font-size: 13px;">Review customer inquiries, target budgets, and direct contact numbers for manual follow-up.</p>
+
+        <div style="overflow-x: auto;">
+            <table class="order-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Customer Name</th>
+                        <th>Contact (Phone/Email)</th>
+                        <th>Item & Specifications</th>
+                        <th>Budget</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">No customer orders logged in this session yet. Submit a request on the main page to test!</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- STEP 1: PIN Prompt Modal -->
     <div class="staff-modal" id="pinModal">
         <div class="staff-box">
             <h3 style="margin-top:0; color:#fff;">Enter Security PIN</h3>
-            <p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;">Please enter your access PIN to proceed to staff login.</p>
+            <p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;">Please enter your access PIN to proceed.</p>
             <label>Security PIN</label>
             <input type="password" id="gatePin" placeholder="Enter PIN (e.g. 0710)" style="margin-bottom:25px;">
             <button class="btn-submit" onclick="verifyPin()" style="margin-top:0;">Continue</button>
@@ -132,7 +162,7 @@
         </div>
     </div>
 
-    <!-- STEP 2: Staff Account Login Screen (Username & Password) -->
+    <!-- STEP 2: Staff Account Login Screen -->
     <div class="staff-modal" id="loginModal">
         <div class="staff-box">
             <h3 style="margin-top:0; color:#fff;">Staff Account Login</h3>
@@ -147,6 +177,9 @@
     </div>
 
     <script>
+        // Store orders locally in memory while the server runs
+        let customerOrders = [];
+
         function openPinModal() { 
             document.getElementById('gatePin').value = '';
             document.getElementById('pinModal').style.display = 'flex'; 
@@ -160,7 +193,6 @@
         function verifyPin() {
             const pin = document.getElementById('gatePin').value;
             if(pin === "0710") {
-                // Hide PIN modal and open the Staff Account Login modal
                 document.getElementById('pinModal').style.display = 'none';
                 document.getElementById('staffUser').value = '';
                 document.getElementById('staffPass').value = '';
@@ -179,6 +211,7 @@
                 document.getElementById('publicMainContent').style.display = 'none';
                 document.getElementById('loggedUserDisplay').innerText = `User: ${user}`;
                 document.getElementById('staffDashboardView').style.display = 'block';
+                renderOrdersTable();
             } else {
                 alert("Please enter both your staff username and password.");
             }
@@ -191,7 +224,26 @@
             document.getElementById('staffPass').value = '';
         }
 
+        function renderOrdersTable() {
+            const tbody = document.getElementById('ordersTableBody');
+            if(customerOrders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">No customer orders logged in this session yet.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = customerOrders.map(order => `
+                <tr>
+                    <td>${order.time}</td>
+                    <td style="font-weight:600; color:#fff;">${order.name}</td>
+                    <td><a href="tel:${order.contact}" style="color:#a78bfa; text-decoration:none;">${order.contact}</a></td>
+                    <td>${order.query} (${order.condition})</td>
+                    <td style="color:#4ade80; font-weight:600;">${order.budget}</td>
+                </tr>
+            `).join('');
+        }
+
         async function submitItemHunt() {
+            const customerName = document.getElementById('customerName').value || "Anonymous";
             const customerContact = document.getElementById('customerContact').value;
             const itemQuery = document.getElementById('itemQuery').value;
             const itemSpecifics = document.getElementById('itemSpecifics').value;
@@ -203,6 +255,16 @@
                 alert("Please fill in your contact info and item description.");
                 return;
             }
+
+            // Save order to our staff log array
+            customerOrders.unshift({
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                name: customerName,
+                contact: customerContact,
+                query: `${itemQuery} [${itemSpecifics}]`,
+                condition: itemCondition,
+                budget: targetPrice || "Not specified"
+            });
 
             const fullQuery = `${itemQuery} - ${itemSpecifics} (Condition: ${itemCondition}, Budget: ${targetPrice}, Notes: ${additionalNotes})`;
 
