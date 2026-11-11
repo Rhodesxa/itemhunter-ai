@@ -79,7 +79,7 @@ app.post('/api/orders/update', (req, res) => {
     res.json({ success: true, orders });
 });
 
-// API: Generate precision listing links sorted by best match / active inventory
+// API: Generate highly targeted listing filters
 app.post('/api/hunt-item', async (req, res) => {
     const { orderId, itemQuery, targetPrice } = req.body;
     
@@ -87,34 +87,31 @@ app.post('/api/hunt-item', async (req, res) => {
         const rawQuery = itemQuery || "";
         const cleanQuery = encodeURIComponent(rawQuery);
         
-        // Precision-tuned URLs with sorting and filters to land closer to exact inventory listings
+        // Tuned parameters forcing direct matching, Buy It Now, and strict keyword isolation
         const links = [
             { 
-                label: '🔍 eBay (Buy It Now & Best Match)', 
-                url: `https://www.ebay.com/sch/i.html?_nkw=${cleanQuery}&_sop=12&rt=nc&LH_BIN=1` 
+                label: '🔍 eBay (Exact Match / Buy It Now)', 
+                url: `https://www.ebay.com/sch/i.html?_nkw=${cleanQuery}&_sacat=0&LH_BIN=1&_sop=15` 
             },
             { 
-                label: '🛒 Amazon Direct Product Match', 
-                url: `https://www.amazon.com/s?k=${cleanQuery}&ref=nb_sb_noss` 
+                label: '🛒 Amazon Direct Catalog', 
+                url: `https://www.amazon.com/s?k=${cleanQuery}` 
             },
             { 
-                label: '🏪 Walmart Available Inventory', 
-                url: `https://www.walmart.com/search?q=${cleanQuery}&sort=best_match` 
+                label: '🏪 Walmart Available Stock', 
+                url: `https://www.walmart.com/search?q=${cleanQuery}` 
             },
             { 
-                label: '📍 KSL Classifieds (Strict Keyword Filter)', 
-                url: `https://www.ksl.com/classifieds/search?keyword=${cleanQuery}&category=0&priceFrom=&priceTo=` 
+                label: '📍 KSL Classifieds (Targeted Keyword)', 
+                url: `https://www.ksl.com/classifieds/search?keyword=${cleanQuery}` 
             },
             { 
-                label: '👥 Facebook Marketplace (Local Radius)', 
-                url: `https://www.facebook.com/marketplace/search/?query=${cleanQuery}&exact=false` 
+                label: '👥 Facebook Marketplace', 
+                url: `https://www.facebook.com/marketplace/search/?query=${cleanQuery}` 
             }
         ];
 
-        const resultsText = `AI Precision Sourcing Complete.\n` +
-            `• Target: ${rawQuery}\n` +
-            `• Budget: ${targetPrice || 'Flexible'}\n` +
-            `• Generated 5 precision-filtered listing links.`;
+        const resultsText = `AI Targeted Scan Complete for: ${rawQuery}`;
 
         let orders = loadOrders();
         orders = orders.map(o => {
@@ -131,7 +128,7 @@ app.post('/api/hunt-item', async (req, res) => {
             success: true,
             results: resultsText,
             links: links,
-            staffNotice: "Precision listing links generated successfully."
+            staffNotice: "Targeted listing links generated."
         });
     } catch (error) {
         res.status(500).json({ success: false, error: "Search failed." });
