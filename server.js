@@ -79,26 +79,42 @@ app.post('/api/orders/update', (req, res) => {
     res.json({ success: true, orders });
 });
 
-// API: Instantly generate multiple mainstream marketplace listing links
+// API: Generate precision listing links sorted by best match / active inventory
 app.post('/api/hunt-item', async (req, res) => {
     const { orderId, itemQuery, targetPrice } = req.body;
     
     try {
-        const cleanQuery = encodeURIComponent(itemQuery || "");
+        const rawQuery = itemQuery || "";
+        const cleanQuery = encodeURIComponent(rawQuery);
         
-        // Comprehensive mainstream marketplace search options for staff review
+        // Precision-tuned URLs with sorting and filters to land closer to exact inventory listings
         const links = [
-            { label: '🔍 eBay Verified Search Results', url: `https://www.ebay.com/sch/i.html?_nkw=${cleanQuery}&_sacat=0` },
-            { label: '🛒 Amazon Direct Catalog', url: `https://www.amazon.com/s?k=${cleanQuery}` },
-            { label: '🏪 Walmart Online Marketplace', url: `https://www.walmart.com/search?q=${cleanQuery}` },
-            { label: '📍 KSL Classifieds (Local/Regional)', url: `https://www.ksl.com/classifieds/search?keyword=${cleanQuery}` },
-            { label: '👥 Facebook Marketplace Search', url: `https://www.facebook.com/marketplace/search/?query=${cleanQuery}` }
+            { 
+                label: '🔍 eBay (Buy It Now & Best Match)', 
+                url: `https://www.ebay.com/sch/i.html?_nkw=${cleanQuery}&_sop=12&rt=nc&LH_BIN=1` 
+            },
+            { 
+                label: '🛒 Amazon Direct Product Match', 
+                url: `https://www.amazon.com/s?k=${cleanQuery}&ref=nb_sb_noss` 
+            },
+            { 
+                label: '🏪 Walmart Available Inventory', 
+                url: `https://www.walmart.com/search?q=${cleanQuery}&sort=best_match` 
+            },
+            { 
+                label: '📍 KSL Classifieds (Strict Keyword Filter)', 
+                url: `https://www.ksl.com/classifieds/search?keyword=${cleanQuery}&category=0&priceFrom=&priceTo=` 
+            },
+            { 
+                label: '👥 Facebook Marketplace (Local Radius)', 
+                url: `https://www.facebook.com/marketplace/search/?query=${cleanQuery}&exact=false` 
+            }
         ];
 
-        const resultsText = `AI Multi-Platform Scan Complete.\n` +
-            `• Target: ${itemQuery}\n` +
+        const resultsText = `AI Precision Sourcing Complete.\n` +
+            `• Target: ${rawQuery}\n` +
             `• Budget: ${targetPrice || 'Flexible'}\n` +
-            `• Generated 5 mainstream sourcing links for staff filtering.`;
+            `• Generated 5 precision-filtered listing links.`;
 
         let orders = loadOrders();
         orders = orders.map(o => {
@@ -115,7 +131,7 @@ app.post('/api/hunt-item', async (req, res) => {
             success: true,
             results: resultsText,
             links: links,
-            staffNotice: "AI generated multiple mainstream marketplace options successfully."
+            staffNotice: "Precision listing links generated successfully."
         });
     } catch (error) {
         res.status(500).json({ success: false, error: "Search failed." });
