@@ -29,14 +29,30 @@
         .form-group.full { grid-column: span 2; }
         label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
         input, select { width: 100%; padding: 12px 16px; background: rgba(8, 9, 14, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 14px; box-sizing: border-box; }
-        .btn-submit { width: 100%; background: linear-gradient(135deg, #7c3aed, #4f46e5); color: white; border: none; padding: 16px; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; }
-        .staff-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; }
-        .staff-box { background: #12141f; border: 1px solid #7c3aed; padding: 40px; border-radius: 16px; width: 100%; max-width: 400px; box-sizing: border-box; }
         
-        /* Staff Dashboard Tables */
-        .order-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
-        .order-table th, .order-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .package-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .package-card { background: rgba(8, 9, 14, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; cursor: pointer; position: relative; transition: all 0.2s; }
+        .package-card.selected { border-color: #7c3aed; background: rgba(124, 58, 237, 0.08); }
+        .package-card h4 { margin: 0 0 5px 0; font-size: 16px; color: #fff; }
+        .package-card .price { font-size: 20px; font-weight: 700; color: #a78bfa; margin-bottom: 10px; }
+        .package-card p { font-size: 12px; margin: 0; color: var(--text-muted); }
+        .package-radio { position: absolute; top: 20px; right: 20px; }
+
+        .btn-submit { width: 100%; background: linear-gradient(135deg, #7c3aed, #4f46e5); color: white; border: none; padding: 16px; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; box-shadow: 0 10px 20px -5px rgba(124, 58, 237, 0.4); }
+        
+        .staff-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; }
+        .staff-box { background: #12141f; border: 1px solid #7c3aed; padding: 40px; border-radius: 16px; width: 100%; max-width: 400px; box-sizing: border-box; text-align: center; }
+        
+        /* Dashboard Stats & Table */
+        .stats-grid-staff { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }
+        .stat-box { background: rgba(8,9,14,0.6); border: 1px solid rgba(255,255,255,0.05); padding: 16px; border-radius: 10px; text-align: center; }
+        .stat-box h4 { margin: 0 0 5px 0; font-size: 20px; color: #a78bfa; }
+        .stat-box span { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
+        .order-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        .order-table th, .order-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); vertical-align: middle; }
         .order-table th { color: #a78bfa; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; }
+        .btn-action { background: #7c3aed; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 600; margin-right: 4px; }
+        .btn-action:hover { background: #6d28d9; }
     </style>
 </head>
 <body>
@@ -108,7 +124,23 @@
                 </div>
             </div>
 
-            <button class="btn-submit" onclick="submitItemHunt()">Launch AI Hunter →</button>
+            <label style="margin-bottom: 12px; display: block;">Select Service Package</label>
+            <div class="package-grid">
+                <div class="package-card selected" onclick="selectPackage(this, 'Standard', 30)">
+                    <input type="radio" name="package" class="package-radio" checked>
+                    <h4>Standard Search</h4>
+                    <div class="price">$30 <span style="font-size:12px; color:#94a3b8; font-weight:normal;">service fee</span></div>
+                    <p>Scrapes Amazon, FB Marketplace, and KSL. 24–48h turnaround.</p>
+                </div>
+                <div class="package-card" onclick="selectPackage(this, 'Priority', 50)">
+                    <input type="radio" name="package" class="package-radio">
+                    <h4>Priority Deep Hunt</h4>
+                    <div class="price">$50 <span style="font-size:12px; color:#94a3b8; font-weight:normal;">service fee</span></div>
+                    <p>Nationwide scrape + priority human broker verification.</p>
+                </div>
+            </div>
+
+            <button class="btn-submit" onclick="initiateCheckout()">Pay Service Fee & Launch AI Hunter →</button>
 
             <div id="searchResultsBox" style="margin-top: 30px; background: rgba(8,9,14,0.8); border: 1px solid rgba(147,51,234,0.3); border-radius: 12px; padding: 24px; display: none;">
                 <h4 style="margin-top:0; color:#a78bfa;">Live AI Search Results & Direct Links</h4>
@@ -117,186 +149,62 @@
         </div>
     </div>
 
-    <!-- Staff Control Dashboard View (With Orders & Leads) -->
-    <div id="staffDashboardView" style="display:none; max-width: 1000px; margin: 40px auto; padding: 40px; background: var(--card-bg); border-radius: 20px; border: 1px solid #7c3aed;">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; margin-bottom: 20px;">
+    <!-- VENMO PAYMENT MODAL SCREEN -->
+    <div class="staff-modal" id="venmoModal">
+        <div class="staff-box">
+            <h3 style="margin-top:0; color:#fff;">Complete Payment via Venmo</h3>
+            <p style="color:var(--text-muted); font-size:13px; margin-bottom: 20px;">Scan or click below to pay your service fee (<span id="venmoFeeDisplay" style="color:#a78bfa; font-weight:bold;">$30</span>).</p>
+            <div style="background:#fff; padding:15px; border-radius:12px; display:inline-block; margin-bottom:20px;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://venmo.com" alt="Venmo QR" style="display:block; width:140px; height:140px;">
+            </div>
+            <p style="font-size:14px; color:#fff; margin-bottom:20px;">Venmo Handle: <strong style="color:#38bdf8;">@ItemHunterAI</strong></p>
+            <button class="btn-submit" onclick="confirmPaymentAndSubmit()">I Have Paid — Launch AI Search</button>
+            <button class="btn-nav" style="width:100%; margin-top:10px; background:transparent;" onclick="document.getElementById('venmoModal').style.display='none'">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Staff Control Dashboard View -->
+    <div id="staffDashboardView" style="display:none; max-width: 1100px; margin: 40px auto; padding: 40px; background: var(--card-bg); border-radius: 20px; border: 1px solid #7c3aed;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; margin-bottom: 25px;">
             <div>
-                <h2 style="color: #a78bfa; margin: 0 0 5px 0;">Staff Control Panel</h2>
+                <h2 style="color: #a78bfa; margin: 0 0 5px 0;">Staff Control Panel & Financials</h2>
                 <p style="color: #4ade80; margin: 0; font-size: 13px;">● Secure session active (<span id="loggedUserDisplay"></span>)</p>
             </div>
             <button class="btn-nav" style="background: #7c3aed;" onclick="logoutStaff()">Log Out</button>
         </div>
 
-        <h3 style="color: #fff; margin-top: 20px;">Incoming Customer Orders & Lead Submissions</h3>
-        <p style="color: var(--text-muted); font-size: 13px;">Review customer inquiries, target budgets, and direct contact numbers for manual follow-up.</p>
+        <!-- Weekly Financial & Queue Metrics -->
+        <div class="stats-grid-staff">
+            <div class="stat-box">
+                <h4 id="statWaitingMoney">$0</h4>
+                <span>Jobs Waiting (Revenue)</span>
+            </div>
+            <div class="stat-box">
+                <h4 id="statWaitingCount">0</h4>
+                <span>Jobs Waiting (Count)</span>
+            </div>
+            <div class="stat-box">
+                <h4 id="statDoneMoney">$0</h4>
+                <span>Jobs Done This Week</span>
+            </div>
+            <div class="stat-box">
+                <h4 id="statDoneCount">0</h4>
+                <span>Jobs Done (Count)</span>
+            </div>
+        </div>
 
+        <h3 style="color: #fff; margin-top: 30px;">Active Customer Orders & AI Sourcing Queue</h3>
         <div style="overflow-x: auto;">
             <table class="order-table">
                 <thead>
                     <tr>
-                        <th>Time</th>
-                        <th>Customer Name</th>
-                        <th>Contact (Phone/Email)</th>
-                        <th>Item & Specifications</th>
-                        <th>Budget</th>
+                        <th>Customer & Contact</th>
+                        <th>Item & Details</th>
+                        <th>Package / Status</th>
+                        <th>AI Search Control</th>
+                        <th>Direct Link</th>
                     </tr>
                 </thead>
                 <tbody id="ordersTableBody">
                     <tr>
-                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">No customer orders logged in this session yet. Submit a request on the main page to test!</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- STEP 1: PIN Prompt Modal -->
-    <div class="staff-modal" id="pinModal">
-        <div class="staff-box">
-            <h3 style="margin-top:0; color:#fff;">Enter Security PIN</h3>
-            <p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;">Please enter your access PIN to proceed.</p>
-            <label>Security PIN</label>
-            <input type="password" id="gatePin" placeholder="Enter PIN (e.g. 0710)" style="margin-bottom:25px;">
-            <button class="btn-submit" onclick="verifyPin()" style="margin-top:0;">Continue</button>
-            <button class="btn-nav" style="width:100%; margin-top:10px; background:transparent;" onclick="closeModals()">Cancel</button>
-        </div>
-    </div>
-
-    <!-- STEP 2: Staff Account Login Screen -->
-    <div class="staff-modal" id="loginModal">
-        <div class="staff-box">
-            <h3 style="margin-top:0; color:#fff;">Staff Account Login</h3>
-            <p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;">PIN verified. Enter your staff account credentials.</p>
-            <label>Staff Username</label>
-            <input type="text" id="staffUser" placeholder="Username" style="margin-bottom:15px;">
-            <label>Staff Password</label>
-            <input type="password" id="staffPass" placeholder="Password" style="margin-bottom:25px;">
-            <button class="btn-submit" onclick="verifyStaffLogin()" style="margin-top:0;">Access Dashboard</button>
-            <button class="btn-nav" style="width:100%; margin-top:10px; background:transparent;" onclick="closeModals()">Cancel</button>
-        </div>
-    </div>
-
-    <script>
-        // Store orders locally in memory while the server runs
-        let customerOrders = [];
-
-        function openPinModal() { 
-            document.getElementById('gatePin').value = '';
-            document.getElementById('pinModal').style.display = 'flex'; 
-        }
-        
-        function closeModals() { 
-            document.getElementById('pinModal').style.display = 'none'; 
-            document.getElementById('loginModal').style.display = 'none';
-        }
-
-        function verifyPin() {
-            const pin = document.getElementById('gatePin').value;
-            if(pin === "0710") {
-                document.getElementById('pinModal').style.display = 'none';
-                document.getElementById('staffUser').value = '';
-                document.getElementById('staffPass').value = '';
-                document.getElementById('loginModal').style.display = 'flex';
-            } else {
-                alert("Incorrect PIN (Hint: 0710)");
-            }
-        }
-
-        function verifyStaffLogin() {
-            const user = document.getElementById('staffUser').value;
-            const pass = document.getElementById('staffPass').value;
-            
-            if(user.trim() !== "" && pass.trim() !== "") {
-                closeModals();
-                document.getElementById('publicMainContent').style.display = 'none';
-                document.getElementById('loggedUserDisplay').innerText = `User: ${user}`;
-                document.getElementById('staffDashboardView').style.display = 'block';
-                renderOrdersTable();
-            } else {
-                alert("Please enter both your staff username and password.");
-            }
-        }
-
-        function logoutStaff() {
-            document.getElementById('staffDashboardView').style.display = 'none';
-            document.getElementById('publicMainContent').style.display = 'block';
-            document.getElementById('staffUser').value = '';
-            document.getElementById('staffPass').value = '';
-        }
-
-        function renderOrdersTable() {
-            const tbody = document.getElementById('ordersTableBody');
-            if(customerOrders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">No customer orders logged in this session yet.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = customerOrders.map(order => `
-                <tr>
-                    <td>${order.time}</td>
-                    <td style="font-weight:600; color:#fff;">${order.name}</td>
-                    <td><a href="tel:${order.contact}" style="color:#a78bfa; text-decoration:none;">${order.contact}</a></td>
-                    <td>${order.query} (${order.condition})</td>
-                    <td style="color:#4ade80; font-weight:600;">${order.budget}</td>
-                </tr>
-            `).join('');
-        }
-
-        async function submitItemHunt() {
-            const customerName = document.getElementById('customerName').value || "Anonymous";
-            const customerContact = document.getElementById('customerContact').value;
-            const itemQuery = document.getElementById('itemQuery').value;
-            const itemSpecifics = document.getElementById('itemSpecifics').value;
-            const itemCondition = document.getElementById('itemCondition').value;
-            const targetPrice = document.getElementById('targetPrice').value;
-            const additionalNotes = document.getElementById('additionalNotes').value;
-
-            if(!itemQuery || !customerContact) {
-                alert("Please fill in your contact info and item description.");
-                return;
-            }
-
-            // Save order to our staff log array
-            customerOrders.unshift({
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                name: customerName,
-                contact: customerContact,
-                query: `${itemQuery} [${itemSpecifics}]`,
-                condition: itemCondition,
-                budget: targetPrice || "Not specified"
-            });
-
-            const fullQuery = `${itemQuery} - ${itemSpecifics} (Condition: ${itemCondition}, Budget: ${targetPrice}, Notes: ${additionalNotes})`;
-
-            document.getElementById('outputContent').innerHTML = "<span style='color: #a78bfa;'>AI is scanning live marketplaces and compiling direct links...</span>";
-            document.getElementById('searchResultsBox').style.display = 'block';
-
-            try {
-                const response = await fetch('/api/hunt-item', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        itemQuery: fullQuery,
-                        targetPrice: targetPrice,
-                        customerPhone: customerContact,
-                        customerEmail: customerContact.includes('@') ? customerContact : ''
-                    })
-                });
-                const data = await response.json();
-
-                if(data.success) {
-                    document.getElementById('outputContent').innerHTML = `
-                        <div style="margin-bottom: 15px;">${data.results.replace(/\n/g, '<br>')}</div>
-                        <div style="margin-top: 15px;"><a href="${data.defaultLink}" target="_blank" style="color: #a78bfa; font-weight: 700;">🔗 Open Direct Web Search &rarr;</a></div>
-                        <div style="margin-top: 15px; color: #facc15; font-size: 13px;">${data.staffNotice}</div>
-                    `;
-                } else {
-                    document.getElementById('outputContent').innerHTML = "Search execution failed.";
-                }
-            } catch (err) {
-                document.getElementById('outputContent').innerHTML = "Error connecting to AI backend server.";
-            }
-        }
-    </script>
-</body>
-</html>
+                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">No customer orders logged yet.</td>
