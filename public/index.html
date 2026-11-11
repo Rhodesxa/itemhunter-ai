@@ -49,70 +49,82 @@
         </div>
     </header>
 
-    <div class="hero">
-        <h2>We Hunt Down<br><span>Impossible-to-Find</span> Items.</h2>
-        <p style="color: var(--text-muted);">Our advanced AI scrapes Amazon, Facebook Marketplace, KSL Classifieds, eBay, and local networks instantly.</p>
+    <!-- Main Public Landing / Intake View -->
+    <div id="publicMainContent">
+        <div class="hero">
+            <h2>We Hunt Down<br><span>Impossible-to-Find</span> Items.</h2>
+            <p style="color: var(--text-muted);">Our advanced AI scrapes Amazon, Facebook Marketplace, KSL Classifieds, eBay, and local networks instantly.</p>
+        </div>
+
+        <div class="form-container" id="requestFormSection">
+            <h3>Item Request Intake Form</h3>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 30px;">Fill out your specifications below to deploy our AI search engine.</p>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Your Full Name</label>
+                    <input type="text" id="customerName" placeholder="e.g., Sarah Jenkins">
+                </div>
+                <div class="form-group">
+                    <label>Email or Phone Number</label>
+                    <input type="text" id="customerContact" placeholder="e.g., (801) 555-0192">
+                </div>
+            </div>
+
+            <div class="form-group full">
+                <label>What is the item?</label>
+                <input type="text" id="itemQuery" placeholder="e.g., 2013 Honda Accord Front Bumper">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Specifics, Colors, Year & Details</label>
+                    <input type="text" id="itemSpecifics" placeholder="e.g., White Orchid Pearl">
+                </div>
+                <div class="form-group">
+                    <label>Acceptable Condition</label>
+                    <select id="itemCondition">
+                        <option value="Brand New">Brand New / Sealed</option>
+                        <option value="Like New">Like New / Open Box</option>
+                        <option value="Refurbished">Certified Refurbished</option>
+                        <option value="Used">Used / Good Condition</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Price Range / Max Budget ($)</label>
+                    <input type="text" id="targetPrice" placeholder="e.g., $300 - $450 max">
+                </div>
+                <div class="form-group">
+                    <label>Additional Notes</label>
+                    <input type="text" id="additionalNotes" placeholder="e.g., Local Utah pickup preferred">
+                </div>
+            </div>
+
+            <button class="btn-submit" onclick="submitItemHunt()">Launch AI Hunter →</button>
+
+            <div id="searchResultsBox" style="margin-top: 30px; background: rgba(8,9,14,0.8); border: 1px solid rgba(147,51,234,0.3); border-radius: 12px; padding: 24px; display: none;">
+                <h4 style="margin-top:0; color:#a78bfa;">Live AI Search Results & Direct Links</h4>
+                <div id="outputContent" style="line-height: 1.6; color: #f8fafc;"></div>
+            </div>
+        </div>
     </div>
 
-    <div class="form-container" id="requestFormSection">
-        <h3>Item Request Intake Form</h3>
-        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 30px;">Fill out your specifications below to deploy our AI search engine.</p>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <label>Your Full Name</label>
-                <input type="text" id="customerName" placeholder="e.g., Sarah Jenkins">
-            </div>
-            <div class="form-group">
-                <label>Email or Phone Number</label>
-                <input type="text" id="customerContact" placeholder="e.g., (801) 555-0192">
-            </div>
-        </div>
-
-        <div class="form-group full">
-            <label>What is the item?</label>
-            <input type="text" id="itemQuery" placeholder="e.g., 2013 Honda Accord Front Bumper">
-        </div>
-
-        <div class="form-row">
-            <div class="form-group">
-                <label>Specifics, Colors, Year & Details</label>
-                <input type="text" id="itemSpecifics" placeholder="e.g., White Orchid Pearl">
-            </div>
-            <div class="form-group">
-                <label>Acceptable Condition</label>
-                <select id="itemCondition">
-                    <option value="Brand New">Brand New / Sealed</option>
-                    <option value="Like New">Like New / Open Box</option>
-                    <option value="Refurbished">Certified Refurbished</option>
-                    <option value="Used">Used / Good Condition</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group">
-                <label>Price Range / Max Budget ($)</label>
-                <input type="text" id="targetPrice" placeholder="e.g., $300 - $450 max">
-            </div>
-            <div class="form-group">
-                <label>Additional Notes</label>
-                <input type="text" id="additionalNotes" placeholder="e.g., Local Utah pickup preferred">
-            </div>
-        </div>
-
-        <button class="btn-submit" onclick="submitItemHunt()">Launch AI Hunter →</button>
-
-        <div id="searchResultsBox" style="margin-top: 30px; background: rgba(8,9,14,0.8); border: 1px solid rgba(147,51,234,0.3); border-radius: 12px; padding: 24px; display: none;">
-            <h4 style="margin-top:0; color:#a78bfa;">Live AI Search Results & Direct Links</h4>
-            <div id="outputContent" style="line-height: 1.6; color: #f8fafc;"></div>
-        </div>
+    <!-- Staff Control Dashboard View (Hidden until PIN is verified) -->
+    <div id="staffDashboardView" style="display:none; max-width: 800px; margin: 60px auto; padding: 40px; background: var(--card-bg); border-radius: 20px; border: 1px solid #7c3aed;">
+        <h2 style="color: #a78bfa; margin-top: 0;">Staff Control Panel</h2>
+        <p style="color: #4ade80;">● Secure session active (PIN: 0710 Verified)</p>
+        <p style="color: var(--text-muted);">Manage customer logs, review incoming lead submissions, and coordinate customer call-backs.</p>
+        <button class="btn-nav" style="margin-top: 20px; background: #7c3aed;" onclick="logoutStaff()">Log Out / Return to Main</button>
     </div>
 
     <!-- Staff Login Modal -->
     <div class="staff-modal" id="staffModal">
         <div class="staff-box">
             <h3 style="margin-top:0; color:#fff;">Staff Portal Login</h3>
+            <p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;">Enter username and security PIN to access staff tools.</p>
             <label>Username</label>
             <input type="text" id="staffUser" placeholder="Username" style="margin-bottom:15px;">
             <label>Security PIN</label>
@@ -123,17 +135,31 @@
     </div>
 
     <script>
-        function openStaffLogin() { document.getElementById('staffModal').style.display = 'flex'; }
-        function closeStaffLogin() { document.getElementById('staffModal').style.display = 'none'; }
+        function openStaffLogin() { 
+            document.getElementById('staffModal').style.display = 'flex'; 
+        }
+        
+        function closeStaffLogin() { 
+            document.getElementById('staffModal').style.display = 'none'; 
+        }
+
         function verifyStaff() {
             const user = document.getElementById('staffUser').value;
             const pin = document.getElementById('staffPin').value;
             if(pin === "0710" && user.trim() !== "") {
-                alert("Staff Login Successful! Secure session active.");
                 closeStaffLogin();
+                document.getElementById('publicMainContent').style.display = 'none';
+                document.getElementById('staffDashboardView').style.display = 'block';
             } else {
                 alert("Invalid Username or PIN (Hint PIN: 0710)");
             }
+        }
+
+        function logoutStaff() {
+            document.getElementById('staffDashboardView').style.display = 'none';
+            document.getElementById('publicMainContent').style.display = 'block';
+            document.getElementById('staffUser').value = '';
+            document.getElementById('staffPin').value = '';
         }
 
         async function submitItemHunt() {
