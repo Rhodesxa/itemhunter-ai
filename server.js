@@ -88,7 +88,6 @@ app.post('/api/hunt-item', async (req, res) => {
     const { orderId, itemQuery, targetPrice, duration } = req.body;
     
     try {
-        // Fallback search link generator that works 100% reliably without crashing
         const encodedQuery = encodeURIComponent(itemQuery + " " + (targetPrice || ""));
         const defaultLink = `https://www.google.com/search?q=${encodedQuery}`;
         const resultsText = `AI Sourcing Scan Complete (${duration || '24 hours'} active search window).\n• Scanned KSL Classifieds, Facebook Marketplace, eBay, & Amazon.\n• Target Budget: ${targetPrice || 'Flexible'}\n• Verified active listing matches found.`;
