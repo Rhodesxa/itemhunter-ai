@@ -153,14 +153,16 @@
             </div>
 
             <button class="btn-submit" onclick="initiateCheckout()">Pay Service Fee & Submit Request →</button>
+        </div>
 
-            <!-- Success Notice Box shown to customer after payment -->
-            <div id="successNoticeBox" style="margin-top: 30px; background: rgba(8,9,14,0.9); border: 1px solid rgba(74,222,128,0.3); border-radius: 12px; padding: 24px; display: none; text-align: center;">
-                <h3 style="margin-top:0; color:#4ade80;">✓ Order Received & Payment Confirmed!</h3>
-                <p style="line-height: 1.6; color: #f8fafc; font-size: 14px;">
-                    Thank you! Our concierge team has received your request and payment. We are deploying our advanced search tools and will reach out to your contact number/email with direct links as soon as we find your item!
-                </p>
-            </div>
+        <!-- THANK YOU / SUCCESS PAGE VIEW (Hidden by default) -->
+        <div class="form-container" id="thankYouSection" style="display: none; text-align: center;">
+            <div style="font-size: 50px; margin-bottom: 15px;">🎉</div>
+            <h2 style="color: #4ade80; margin-top: 0;">Order Submitted Successfully!</h2>
+            <p style="color: var(--text-muted); line-height: 1.6; font-size: 15px; max-width: 600px; margin: 0 auto 30px;">
+                Thank you! Your payment verification and item request have been safely received by our concierge team. We are actively running our multi-platform AI search and will email or text you the exact listings as soon as they are verified!
+            </p>
+            <button class="btn-submit" style="max-width: 300px; margin: 0 auto;" onclick="resetToHome()">Submit Another Request / Return Home</button>
         </div>
     </div>
 
@@ -217,7 +219,7 @@
                         <th>Item & Details</th>
                         <th>Package / Status</th>
                         <th>AI Search Control</th>
-                        <th>Direct Link</th>
+                        <th>Exact Listing Links</th>
                     </tr>
                 </thead>
                 <tbody id="ordersTableBody">
@@ -323,14 +325,27 @@
                 var data = await response.json();
 
                 if(data.success) {
+                    // Hide form and show beautiful Thank You page
                     document.getElementById('requestFormSection').style.display = 'none';
-                    document.getElementById('successNoticeBox').style.display = 'block';
+                    document.getElementById('thankYouSection').style.display = 'block';
                 } else {
                     alert("Error submitting order.");
                 }
             } catch (err) {
                 alert("Server connection error.");
             }
+        }
+
+        function resetToHome() {
+            document.getElementById('thankYouSection').style.display = 'none';
+            document.getElementById('requestFormSection').style.display = 'block';
+            // Clear form fields
+            document.getElementById('customerName').value = '';
+            document.getElementById('customerContact').value = '';
+            document.getElementById('itemQuery').value = '';
+            document.getElementById('itemSpecifics').value = '';
+            document.getElementById('targetPrice').value = '';
+            document.getElementById('additionalNotes').value = '';
         }
 
         function openPinModal() { 
@@ -425,10 +440,10 @@
         }
 
         async function triggerAISearchForOrder(id, query, budget) {
-            var duration = prompt("Enter AI search duration (e.g., '24 hours', '48 hours', '7 days'):", "24 hours");
+            var duration = prompt("Enter desired AI search window (e.g., '24 hours', '48 hours', '7 days'):", "24 hours");
             if(!duration) return;
 
-            alert("AI Search deployed with duration: " + duration + ". Contacting backend...");
+            alert("AI Search deployed with " + duration + " active scan window. Compiling multi-platform links...");
 
             try {
                 var response = await fetch('/api/hunt-item', {
@@ -444,7 +459,7 @@
                 var data = await response.json();
 
                 if(data.success) {
-                    alert("AI Search completed! Direct link generated.");
+                    alert("AI Search complete! 3 marketplace listing links generated.");
                     await loadAndRenderDashboard();
                 } else {
                     alert("AI Search failed.");
@@ -495,12 +510,19 @@
             }
 
             tbody.innerHTML = orders.map(function(order) {
+                var linksHtml = '<span style="color:var(--text-muted); font-size:12px;">Not generated yet</span>';
+                if (order.directLinks && order.directLinks.length > 0) {
+                    linksHtml = order.directLinks.map(function(l) {
+                        return '<div style="margin-bottom:4px;"><a href="' + l.url + '" target="_blank" style="color:#38bdf8; font-weight:600; text-decoration:underline; font-size:12px;">' + l.label + ' →</a></div>';
+                    }).join('');
+                }
+
                 return '<tr>' +
                     '<td><strong style="color:#fff;">' + order.name + '</strong><br><a href="tel:' + order.contact + '" style="color:#a78bfa; text-decoration:none; font-size:12px;">' + order.contact + '</a></td>' +
                     '<td>' + order.query + ' (' + order.condition + ')<br><span style="color:#4ade80; font-size:12px;">Budget: ' + order.budget + '</span>' + (order.notes ? '<br><span style="color:var(--text-muted); font-size:11px;">Notes: ' + order.notes + '</span>' : '') + '</td>' +
                     '<td><strong>' + order.packageName + '</strong> ($' + order.fee + ')<br><button class="btn-action" style="margin-top:4px; background:' + (order.isPaid ? '#4ade80' : '#facc15') + '; color:#08090e;" onclick="togglePayment(\'' + order.id + '\', ' + order.isPaid + ')">' + (order.isPaid ? '✓ Paid' : 'Pending Payment') + '</button></td>' +
                     '<td><button class="btn-action" onclick="triggerAISearchForOrder(\'' + order.id + '\', \'' + order.query + '\', \'' + order.budget + '\')">🤖 Run AI Search</button><button class="btn-action" style="background:#0284c7;" onclick="markDone(\'' + order.id + '\')">Mark Done</button></td>' +
-                    '<td>' + (order.directLink ? '<a href="' + order.directLink + '" target="_blank" style="color:#38bdf8; font-weight:600; text-decoration:underline;">Send Link →</a>' : '<span style="color:var(--text-muted); font-size:12px;">Not generated yet</span>') + '<br><button class="btn-action btn-delete" style="margin-top:6px;" onclick="deleteOrder(\'' + order.id + '\')">Remove</button></td>' +
+                    '<td>' + linksHtml + '<button class="btn-action btn-delete" style="margin-top:6px;" onclick="deleteOrder(\'' + order.id + '\')">Remove</button></td>' +
                     '</tr>';
             }).join('');
         }
