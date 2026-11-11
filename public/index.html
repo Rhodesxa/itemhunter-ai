@@ -41,7 +41,7 @@
         .package-card h4 { margin: 0; font-size: 16px; color: #fff; }
         .package-card .price { font-size: 20px; font-weight: 700; color: #a78bfa; margin-bottom: 8px; }
         .package-card p { font-size: 12px; margin: 0; color: var(--text-muted); line-height: 1.4; }
-        .package-radio { accent-color: #7c3aed; width: 18px; height: 18px; cursor: pointer; pointer-events: none; }
+        .package-radio { accent-color: #7c3aed; width: 18px; height: 18px; cursor: pointer; }
 
         .btn-submit { width: 100%; background: linear-gradient(135deg, #7c3aed, #4f46e5); color: white; border: none; padding: 16px; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; box-shadow: 0 10px 20px -5px rgba(124, 58, 237, 0.4); }
         
@@ -136,7 +136,7 @@
                 <div class="package-card selected" id="cardStandard" onclick="selectPackage('Standard', 30)">
                     <div class="package-header">
                         <h4>Standard Search</h4>
-                        <input type="radio" name="package" class="package-radio" id="radioStandard" checked>
+                        <input type="radio" name="package" class="package-radio" id="radioStandard" checked onclick="event.stopPropagation(); selectPackage('Standard', 30);">
                     </div>
                     <div class="price">$30 <span style="font-size:12px; color:#94a3b8; font-weight:normal;">service fee</span></div>
                     <p>Scrapes Amazon, FB Marketplace, and KSL. 24–48h turnaround.</p>
@@ -145,7 +145,7 @@
                 <div class="package-card" id="cardPriority" onclick="selectPackage('Priority', 50)">
                     <div class="package-header">
                         <h4>Priority Deep Hunt</h4>
-                        <input type="radio" name="package" class="package-radio" id="radioPriority">
+                        <input type="radio" name="package" class="package-radio" id="radioPriority" onclick="event.stopPropagation(); selectPackage('Priority', 50);">
                     </div>
                     <div class="price">$50 <span style="font-size:12px; color:#94a3b8; font-weight:normal;">service fee</span></div>
                     <p>Nationwide scrape + priority human broker verification.</p>
@@ -259,7 +259,6 @@
         let selectedPackageName = 'Standard Search';
         let selectedPackageFee = 30;
 
-        // Clean Package Card Selection Logic
         function selectPackage(name, fee) {
             selectedPackageName = name + ' Search';
             selectedPackageFee = fee;
@@ -272,13 +271,13 @@
             if (name === 'Standard') {
                 cardStandard.classList.add('selected');
                 cardPriority.classList.remove('selected');
-                radioStandard.checked = true;
-                radioPriority.checked = false;
+                if (radioStandard) radioStandard.checked = true;
+                if (radioPriority) radioPriority.checked = false;
             } else {
                 cardPriority.classList.add('selected');
                 cardStandard.classList.remove('selected');
-                radioPriority.checked = true;
-                radioStandard.checked = false;
+                if (radioPriority) radioPriority.checked = true;
+                if (radioStandard) radioStandard.checked = false;
             }
         }
 
@@ -498,4 +497,13 @@
             tbody.innerHTML = orders.map(function(order) {
                 return '<tr>' +
                     '<td><strong style="color:#fff;">' + order.name + '</strong><br><a href="tel:' + order.contact + '" style="color:#a78bfa; text-decoration:none; font-size:12px;">' + order.contact + '</a></td>' +
-                    '<td>' +
+                    '<td>' + order.query + ' (' + order.condition + ')<br><span style="color:#4ade80; font-size:12px;">Budget: ' + order.budget + '</span>' + (order.notes ? '<br><span style="color:var(--text-muted); font-size:11px;">Notes: ' + order.notes + '</span>' : '') + '</td>' +
+                    '<td><strong>' + order.packageName + '</strong> ($' + order.fee + ')<br><button class="btn-action" style="margin-top:4px; background:' + (order.isPaid ? '#4ade80' : '#facc15') + '; color:#08090e;" onclick="togglePayment(\'' + order.id + '\', ' + order.isPaid + ')">' + (order.isPaid ? '✓ Paid' : 'Pending Payment') + '</button></td>' +
+                    '<td><button class="btn-action" onclick="triggerAISearchForOrder(\'' + order.id + '\', \'' + order.query + '\', \'' + order.budget + '\')">🤖 Run AI Search</button><button class="btn-action" style="background:#0284c7;" onclick="markDone(\'' + order.id + '\')">Mark Done</button></td>' +
+                    '<td>' + (order.directLink ? '<a href="' + order.directLink + '" target="_blank" style="color:#38bdf8; font-weight:600; text-decoration:underline;">Send Link →</a>' : '<span style="color:var(--text-muted); font-size:12px;">Not generated yet</span>') + '<br><button class="btn-action btn-delete" style="margin-top:6px;" onclick="deleteOrder(\'' + order.id + '\')">Remove</button></td>' +
+                    '</tr>';
+            }).join('');
+        }
+    </script>
+</body>
+</html>
