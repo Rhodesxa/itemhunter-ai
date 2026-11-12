@@ -6,7 +6,6 @@
     <title>ItemHunter AI | Elite Sourcing Concierge</title>
     <style>
         :root {
-            --bg-deep: #060913;
             --bg-glass: rgba(17, 24, 39, 0.7);
             --border-glass: rgba(255, 255, 255, 0.12);
             --accent-green: #10b981;
@@ -14,7 +13,35 @@
             --text-main: #f9fafb;
             --text-muted: #9ca3af;
         }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-deep); color: var(--text-main); margin: 0; padding: 0; box-sizing: border-box; background-image: radial-gradient(circle at 50% 0%, #111e38 0%, #060913 70%); min-height: 100vh; scroll-behavior: smooth; }
+        
+        /* Atmospheric Glowing Background Snippet */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            color: var(--text-main); 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            min-height: 100vh; 
+            scroll-behavior: smooth;
+            background: 
+                radial-gradient(
+                    ellipse at 15% 10%,
+                    rgba(30, 110, 150, 0.20),
+                    transparent 45%
+                ),
+                radial-gradient(
+                    ellipse at 85% 35%,
+                    rgba(90, 180, 70, 0.12),
+                    transparent 40%
+                ),
+                linear-gradient(
+                    135deg,
+                    #080D16,
+                    #111820,
+                    #080D16
+                );
+            background-attachment: fixed;
+        }
         
         /* Floating Pill Liquid Glass Header */
         header { position: sticky; top: 16px; z-index: 1000; max-width: 900px; margin: 0 auto; background: rgba(11, 15, 25, 0.55); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); display: flex; justify-content: space-between; align-items: center; padding: 12px 28px; border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 15px 35px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2); }
