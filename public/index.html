@@ -5,43 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ItemHunter AI | Elite Sourcing Concierge</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0b0f19; color: #f9fafb; margin: 0; padding: 0; box-sizing: border-box; }
-        header { position: sticky; top: 0; z-index: 1000; background: rgba(11, 15, 25, 0.95); display: flex; justify-content: space-between; align-items: center; padding: 18px 32px; border-bottom: 1px solid #1f2937; }
+        :root {
+            --bg-deep: #060913;
+            --bg-card: rgba(17, 24, 39, 0.7);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --accent-green: #10b981;
+            --accent-green-hover: #059669;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-deep); color: var(--text-main); margin: 0; padding: 0; box-sizing: border-box; background-image: radial-gradient(circle at 50% 0%, #111e38 0%, #060913 70%); min-height: 100vh; }
+        
+        header { position: sticky; top: 0; z-index: 1000; background: rgba(6, 9, 19, 0.85); backdrop-filter: blur(12px); display: flex; justify-content: space-between; align-items: center; padding: 18px 32px; border-bottom: 1px solid var(--border-glass); }
         .logo-area { display: flex; align-items: center; gap: 12px; cursor: pointer; }
-        .logo-icon { background: #1f2937; color: #fff; padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 14px; border: 1px solid #374151; }
-        .logo-text h1 { margin: 0; font-size: 18px; color: #f9fafb; }
-        .logo-text span { font-size: 9px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.15em; font-weight: bold; }
-        .btn-nav { background: #1f2937; border: 1px solid #374151; color: #f9fafb; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
-        .btn-nav:hover { background: #374151; }
-        .hero { text-align: center; padding: 50px 16px 30px; max-width: 800px; margin: 0 auto; }
-        .hero h2 { font-size: 38px; font-weight: 800; margin: 0 0 15px 0; color: #f9fafb; line-height: 1.2; }
-        .hero h2 span { color: #9ca3af; }
-        .hero p { font-size: 15px; color: #9ca3af; line-height: 1.6; max-width: 650px; margin: 0 auto; }
-        .form-container { max-width: 750px; margin: 10px auto 60px; background: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 32px; box-sizing: border-box; width: 92%; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .logo-icon { background: rgba(255,255,255,0.05); color: #10b981; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 14px; border: 1px solid var(--border-glass); }
+        .logo-text h1 { margin: 0; font-size: 18px; color: var(--text-main); font-weight: 700; }
+        .logo-text span { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.15em; font-weight: bold; }
+        
+        .nav-right { display: flex; align-items: center; gap: 12px; }
+        .btn-nav-text { background: transparent; border: none; color: var(--text-muted); font-size: 14px; font-weight: 600; cursor: pointer; padding: 8px 12px; transition: color 0.2s; }
+        .btn-nav-text:hover { color: var(--text-main); }
+        .btn-started { background: var(--accent-green); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+        .btn-started:hover { background: var(--accent-green-hover); }
+
+        .hero { text-align: center; padding: 60px 16px 40px; max-width: 800px; margin: 0 auto; }
+        .hero h2 { font-size: 48px; font-weight: 800; margin: 0 0 20px 0; color: var(--text-main); line-height: 1.15; letter-spacing: -0.02em; }
+        .hero h2 span { color: var(--accent-green); }
+        .hero p { font-size: 16px; color: var(--text-muted); line-height: 1.6; max-width: 650px; margin: 0 auto; }
+
+        .form-container { max-width: 750px; margin: 10px auto 60px; background: var(--bg-card); backdrop-filter: blur(16px); border: 1px solid var(--border-glass); border-radius: 16px; padding: 36px; box-sizing: border-box; width: 92%; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
         .form-group { margin-bottom: 20px; }
         .form-group.full { grid-column: span 2; }
-        label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #9ca3af; margin-bottom: 8px; }
-        input, select { width: 100%; padding: 12px 14px; background: #0b0f19; border: 1px solid #374151; border-radius: 6px; color: #f9fafb; font-size: 14px; box-sizing: border-box; }
+        label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.05em; }
+        input, select { width: 100%; padding: 14px; background: rgba(6, 9, 19, 0.6); border: 1px solid var(--border-glass); border-radius: 8px; color: var(--text-main); font-size: 14px; box-sizing: border-box; transition: border-color 0.2s; }
+        input:focus, select:focus { outline: none; border-color: var(--accent-green); background: rgba(6, 9, 19, 0.9); }
+        
         .package-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-        .package-card { background: #0b0f19; border: 1px solid #374151; border-radius: 8px; padding: 20px; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; }
-        .package-card.selected { border-color: #9ca3af; background: #1f2937; }
-        .package-card h4 { margin: 0; font-size: 16px; color: #f9fafb; }
-        .package-card .price { font-size: 20px; font-weight: 700; color: #9ca3af; margin-bottom: 8px; }
-        .package-card p { font-size: 12px; margin: 0; color: #9ca3af; }
-        .btn-submit { width: 100%; background: #374151; color: white; border: 1px solid #4b5563; padding: 14px; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; }
-        .btn-submit:hover { background: #4b5563; }
-        .staff-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11,15,25,0.85); z-index: 99999; justify-content: center; align-items: center; padding: 16px; box-sizing: border-box; }
-        .staff-box { background: #111827; border: 1px solid #374151; padding: 32px 24px; border-radius: 12px; width: 100%; max-width: 380px; box-sizing: border-box; text-align: left; }
+        .package-card { background: rgba(6, 9, 19, 0.5); border: 1px solid var(--border-glass); border-radius: 10px; padding: 20px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
+        .package-card.selected { border-color: var(--accent-green); background: rgba(16, 185, 129, 0.08); box-shadow: 0 0 15px rgba(16, 185, 129, 0.15); }
+        .package-card h4 { margin: 0; font-size: 16px; color: var(--text-main); }
+        .package-card .price { font-size: 22px; font-weight: 700; color: var(--accent-green); margin-bottom: 8px; margin-top: 6px; }
+        .package-card p { font-size: 12px; margin: 0; color: var(--text-muted); line-height: 1.4; }
+
+        .btn-submit { width: 100%; background: var(--accent-green); color: white; border: none; padding: 16px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+        .btn-submit:hover { background: var(--accent-green-hover); }
+
+        .steps-container { max-width: 800px; margin: 40px auto; padding: 0 20px; text-align: center; }
+        .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 24px; }
+        .step-box { background: var(--bg-card); border: 1px solid var(--border-glass); padding: 24px; border-radius: 12px; text-align: left; }
+        .step-num { width: 32px; height: 32px; background: rgba(16, 185, 129, 0.15); color: var(--accent-green); display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; margin-bottom: 14px; font-size: 14px; }
+        .step-box h4 { margin: 0 0 8px 0; font-size: 15px; color: var(--text-main); }
+        .step-box p { margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+        .staff-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(6, 9, 19, 0.85); z-index: 99999; justify-content: center; align-items: center; padding: 16px; box-sizing: border-box; backdrop-filter: blur(8px); }
+        .staff-box { background: #111827; border: 1px solid var(--border-glass); padding: 32px 24px; border-radius: 16px; width: 100%; max-width: 380px; box-sizing: border-box; text-align: left; box-shadow: 0 25px 50px rgba(0,0,0,0.7); }
+        
         .stats-grid-staff { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; }
-        .stat-box { background: #0b0f19; border: 1px solid #374151; padding: 14px; border-radius: 8px; text-align: center; }
-        .stat-box h4 { margin: 0 0 4px 0; font-size: 20px; color: #9ca3af; }
-        .stat-box span { font-size: 10px; color: #9ca3af; text-transform: uppercase; }
+        .stat-box { background: rgba(6,9,19,0.5); border: 1px solid var(--border-glass); padding: 14px; border-radius: 10px; text-align: center; }
+        .stat-box h4 { margin: 0 0 4px 0; font-size: 20px; color: var(--accent-green); }
+        .stat-box span { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
+        
         .order-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-        .order-table th, .order-table td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #1f2937; }
-        .order-table th { color: #f9fafb; text-transform: uppercase; font-size: 10px; background: #0b0f19; }
+        .order-table th, .order-table td { padding: 12px 10px; text-align: left; border-bottom: 1px solid var(--border-glass); }
+        .order-table th { color: var(--text-main); text-transform: uppercase; font-size: 10px; background: rgba(6,9,19,0.5); }
         .btn-action { background: #374151; color: #fff; border: 1px solid #4b5563; padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: 600; margin-right: 4px; margin-bottom: 4px; display: inline-block; }
-        @media (max-width: 768px) { .form-row { grid-template-columns: 1fr; } .package-grid { grid-template-columns: 1fr; } }
+        .btn-action:hover { background: #4b5563; }
+
+        @media (max-width: 768px) {
+            .hero h2 { font-size: 32px; }
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+            .form-group.full { grid-column: span 1; }
+            .package-grid { grid-template-columns: 1fr; }
+            .steps-grid { grid-template-columns: 1fr; }
+            .form-container { padding: 20px; }
+        }
     </style>
 </head>
 <body>
@@ -54,20 +92,21 @@
                 <span>Elite Sourcing Concierge</span>
             </div>
         </div>
-        <div>
-            <button class="btn-nav" id="staffPortalBtn">Staff Portal</button>
+        <div class="nav-right">
+            <button class="btn-nav-text" id="staffPortalBtn">Staff Portal</button>
+            <button class="btn-started" id="getStartedTopBtn">Get Started →</button>
         </div>
     </header>
 
     <div id="publicMainContent">
         <div class="hero">
             <h2>For people who don’t have time<br><span>to search on their own.</span></h2>
-            <p>We track down rare, discontinued, and hard-to-find items so you don't have to—handled with absolute precision by our advanced search engine.</p>
+            <p>An elite AI-powered sourcing service for rare, discontinued, and hard-to-find products—handled with absolute precision.</p>
         </div>
 
         <div class="form-container" id="requestFormSection">
-            <h3 style="margin-top: 0; font-size: 18px; color: #f9fafb;">Item Request Intake Form</h3>
-            <p style="color: #9ca3af; font-size: 13px; margin-bottom: 24px;">Fill out your specifications below to deploy our search engine.</p>
+            <h3 style="margin-top: 0; font-size: 18px; color: var(--text-main);">Item Request Intake Form</h3>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 24px;">Fill out your specifications below to deploy our search engine.</p>
             
             <div class="form-row">
                 <div class="form-group">
@@ -116,13 +155,17 @@
             <label style="margin-bottom: 10px; display: block;">Select Service Package</label>
             <div class="package-grid">
                 <div class="package-card selected" id="cardStandard">
-                    <div class="package-header"><h4>Standard Search</h4></div>
-                    <div class="price">$30 <span style="font-size:11px; color:#9ca3af; font-weight:normal;">fee</span></div>
+                    <div>
+                        <h4>Standard Search</h4>
+                        <div class="price">$30 <span style="font-size:11px; color:var(--text-muted); font-weight:normal;">fee</span></div>
+                    </div>
                     <p>Scrapes Amazon, FB, and KSL. 24–48h turnaround.</p>
                 </div>
                 <div class="package-card" id="cardPriority">
-                    <div class="package-header"><h4>Priority Deep Hunt</h4></div>
-                    <div class="price">$50 <span style="font-size:11px; color:#9ca3af; font-weight:normal;">fee</span></div>
+                    <div>
+                        <h4>Priority Deep Hunt</h4>
+                        <div class="price">$50 <span style="font-size:11px; color:var(--text-muted); font-weight:normal;">fee</span></div>
+                    </div>
                     <p>Nationwide scrape + human broker verification.</p>
                 </div>
             </div>
@@ -130,344 +173,32 @@
             <button class="btn-submit" id="submitRequestBtn">Pay Service Fee & Submit Request →</button>
         </div>
 
-        <div class="form-container" id="thankYouSection" style="display: none; text-align: center;">
+        <!-- 3 Simple Steps Section -->
+        <div class="steps-container">
+            <h3 style="font-size: 22px; font-weight: 700; margin-bottom: 8px;">Find Your Item in 3 Simple Steps</h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">How our elite sourcing engine works for you.</p>
+            <div class="steps-grid">
+                <div class="step-box">
+                    <div class="step-num">1</div>
+                    <h4>Submit Request</h4>
+                    <p>Tell us what you're looking for, your budget, and acceptable condition.</p>
+                </div>
+                <div class="step-box">
+                    <div class="step-num">2</div>
+                    <h4>AI & Broker Scan</h4>
+                    <p>Our engine scours major online marketplaces and physical store stocks.</p>
+                </div>
+                <div class="step-box">
+                    <div class="step-num">3</div>
+                    <h4>Get Results</h4>
+                    <p>Receive direct, verified purchase links straight to your phone or email.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-container" id="thankYouSection" style="display: none; text-align: center; margin-top: 40px;">
             <div style="font-size: 45px; margin-bottom: 12px;">🎉</div>
-            <h2 style="color: #f9fafb; margin-top: 0; font-size: 24px;">Order Submitted Successfully!</h2>
-            <p style="color: #9ca3af; line-height: 1.5; font-size: 14px; max-width: 500px; margin: 0 auto 24px;">
+            <h2 style="color: var(--text-main); margin-top: 0; font-size: 24px;">Order Submitted Successfully!</h2>
+            <p style="color: var(--text-muted); line-height: 1.5; font-size: 14px; max-width: 500px; margin: 0 auto 24px;">
                 Thank you! Your payment verification and item request have been safely received. We are actively running our search and will email or text you the exact listings as soon as they are verified!
             </p>
-            <button class="btn-submit" style="max-width: 280px; margin: 0 auto;" id="resetHomeBtn">Submit Another Request</button>
-        </div>
-    </div>
-
-    <div class="staff-modal" id="venmoModal">
-        <div class="staff-box" style="text-align:center;">
-            <h3 style="margin-top:0; color:#f9fafb; font-size:18px;">Complete Payment via Venmo</h3>
-            <p style="color:#9ca3af; font-size:12px; margin-bottom: 16px;">Scan or click below to pay your service fee (<span id="venmoFeeDisplay" style="color:#9ca3af; font-weight:bold;">$30</span>).</p>
-            <div style="background:#fff; padding:12px; border-radius:12px; display:inline-block; margin-bottom:16px;">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=https://venmo.com" alt="Venmo QR" style="display:block; width:130px; height:130px;">
-            </div>
-            <p style="font-size:13px; color:#f9fafb; margin-bottom:16px;">Venmo Handle: <strong style="color:#9ca3af;">@ItemHunterAI</strong></p>
-            <button class="btn-submit" id="confirmVenmoBtn">I Have Paid — Submit Order</button>
-            <button class="btn-nav" style="width:100%; margin-top:10px; background:transparent;" id="cancelVenmoBtn">Cancel</button>
-        </div>
-    </div>
-
-    <div id="staffDashboardView" style="display:none; max-width: 1100px; margin: 20px auto; padding: 20px; background: #111827; border-radius: 12px; border: 1px solid #1f2937; width: 94%; box-sizing: border-box;">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f2937; padding-bottom: 16px; margin-bottom: 20px;">
-            <div>
-                <h2 style="color: #f9fafb; margin: 0 0 4px 0; font-size: 18px;">Staff Control Panel</h2>
-                <p style="color: #4ade80; margin: 0; font-size: 12px;">● Session active (<span id="loggedUserDisplay"></span>)</p>
-            </div>
-            <button class="btn-nav" id="logoutStaffBtn">Log Out</button>
-        </div>
-
-        <div class="stats-grid-staff">
-            <div class="stat-box"><h4 id="statWaitingMoney">$0</h4><span>Jobs Waiting ($)</span></div>
-            <div class="stat-box"><h4 id="statWaitingCount">0</h4><span>Waiting (#)</span></div>
-            <div class="stat-box"><h4 id="statDoneMoney">$0</h4><span>Done ($)</span></div>
-            <div class="stat-box"><h4 id="statDoneCount">0</h4><span>Done (#)</span></div>
-        </div>
-
-        <h3 style="color: #f9fafb; margin-top: 20px; font-size: 16px;">Active Customer Orders Queue</h3>
-        <div style="overflow-x: auto;">
-            <table class="order-table">
-                <thead>
-                    <tr><th>Customer</th><th>Item & Details</th><th>Status</th><th>AI Search</th><th>Listing Links</th></tr>
-                </thead>
-                <tbody id="ordersTableBody">
-                    <tr><td colspan="5" style="text-align: center; color: #9ca3af; padding: 24px;">No customer orders logged yet.</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="staff-modal" id="pinModal">
-        <div class="staff-box">
-            <h3 style="margin-top:0; color:#f9fafb; font-size:18px;">Enter Security PIN</h3>
-            <p style="color:#9ca3af; font-size:12px; margin-bottom:12px;">Please enter your access PIN to proceed.</p>
-            <label>Security PIN</label>
-            <input type="password" id="gatePin" placeholder="••••" style="margin-bottom:20px;">
-            <button class="btn-submit" id="submitPinBtn" style="margin-top:0;">Continue</button>
-            <button class="btn-nav" style="width:100%; margin-top:10px; background:transparent;" id="cancelPinBtn">Cancel</button>
-        </div>
-    </div>
-
-    <div class="staff-modal" id="loginModal">
-        <div class="staff-box">
-            <h3 style="margin-top:0; color:#f9fafb; font-size:18px;">Staff Login</h3>
-            <p style="color:#9ca3af; font-size:12px; margin-bottom:12px;">PIN verified. Enter your staff credentials.</p>
-            <label>Username</label>
-            <input type="text" id="staffUser" placeholder="Username" style="margin-bottom:12px;">
-            <label>Password</label>
-            <input type="password" id="staffPass" placeholder="Password" style="margin-bottom:20px;">
-            <button class="btn-submit" id="submitLoginBtn" style="margin-top:0;">Access Dashboard</button>
-            <button class="btn-nav" style="width:100%; margin-top:10px; background:transparent;" id="cancelLoginBtn">Cancel</button>
-        </div>
-    </div>
-
-    <script>
-        let selectedPackageName = 'Standard Search';
-        let selectedPackageFee = 30;
-
-        function goHome() {
-            document.getElementById('staffDashboardView').style.display = 'none';
-            document.getElementById('publicMainContent').style.display = 'block';
-            document.getElementById('thankYouSection').style.display = 'none';
-            document.getElementById('requestFormSection').style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function selectPackage(name, fee) {
-            selectedPackageName = name + ' Search';
-            selectedPackageFee = fee;
-            var cardStandard = document.getElementById('cardStandard');
-            var cardPriority = document.getElementById('cardPriority');
-            if (name === 'Standard') {
-                cardStandard.classList.add('selected');
-                cardPriority.classList.remove('selected');
-            } else {
-                cardPriority.classList.add('selected');
-                cardStandard.classList.remove('selected');
-            }
-        }
-
-        function initiateCheckout() {
-            var itemQuery = document.getElementById('itemQuery').value;
-            var customerContact = document.getElementById('customerContact').value;
-            if(!itemQuery || !customerContact) {
-                alert("Please fill in your contact info and item description before proceeding.");
-                return;
-            }
-            document.getElementById('venmoFeeDisplay').innerText = '$' + selectedPackageFee;
-            document.getElementById('venmoModal').style.setProperty('display', 'flex', 'important');
-        }
-
-        async function confirmPaymentAndSubmit() {
-            document.getElementById('venmoModal').style.display = 'none';
-            var customerName = document.getElementById('customerName').value || "Anonymous";
-            var customerContact = document.getElementById('customerContact').value;
-            var itemQuery = document.getElementById('itemQuery').value;
-            var itemSpecifics = document.getElementById('itemSpecifics').value;
-            var itemCondition = document.getElementById('itemCondition').value;
-            var targetPrice = document.getElementById('targetPrice').value;
-            var additionalNotes = document.getElementById('additionalNotes').value;
-
-            try {
-                var response = await fetch('/api/orders', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        name: customerName,
-                        contact: customerContact,
-                        query: itemQuery + ' [' + itemSpecifics + ']',
-                        condition: itemCondition,
-                        budget: targetPrice || "Flexible",
-                        notes: additionalNotes,
-                        packageName: selectedPackageName,
-                        fee: selectedPackageFee
-                    })
-                });
-                var data = await response.json();
-                if(data.success) {
-                    document.getElementById('requestFormSection').style.display = 'none';
-                    document.getElementById('thankYouSection').style.display = 'block';
-                } else {
-                    alert("Error submitting order.");
-                }
-            } catch (err) {
-                alert("Server connection error.");
-            }
-        }
-
-        function resetToHome() {
-            document.getElementById('thankYouSection').style.display = 'none';
-            document.getElementById('requestFormSection').style.display = 'block';
-            document.getElementById('customerName').value = '';
-            document.getElementById('customerContact').value = '';
-            document.getElementById('itemQuery').value = '';
-            document.getElementById('itemSpecifics').value = '';
-            document.getElementById('targetPrice').value = '';
-            document.getElementById('additionalNotes').value = '';
-        }
-
-        function openPinModal() { 
-            var gatePin = document.getElementById('gatePin');
-            if(gatePin) gatePin.value = '';
-            var pinModal = document.getElementById('pinModal');
-            if(pinModal) {
-                pinModal.style.setProperty('display', 'flex', 'important');
-                if(gatePin) gatePin.focus();
-            }
-        }
-        
-        function closeModals() { 
-            var pinModal = document.getElementById('pinModal');
-            var loginModal = document.getElementById('loginModal');
-            var venmoModal = document.getElementById('venmoModal');
-            if(pinModal) pinModal.style.display = 'none'; 
-            if(loginModal) loginModal.style.display = 'none';
-            if(venmoModal) venmoModal.style.display = 'none';
-        }
-
-        function verifyPin() {
-            var pin = document.getElementById('gatePin').value;
-            if(pin === "0710") {
-                document.getElementById('pinModal').style.display = 'none';
-                document.getElementById('staffUser').value = '';
-                document.getElementById('staffPass').value = '';
-                var loginModal = document.getElementById('loginModal');
-                loginModal.style.setProperty('display', 'flex', 'important');
-                document.getElementById('staffUser').focus();
-            } else {
-                alert("Incorrect PIN");
-            }
-        }
-
-        async function verifyStaffLogin() {
-            var user = document.getElementById('staffUser').value;
-            var pass = document.getElementById('staffPass').value;
-            if(user.trim() !== "" && pass.trim() !== "") {
-                closeModals();
-                document.getElementById('publicMainContent').style.display = 'none';
-                document.getElementById('loggedUserDisplay').innerText = user;
-                document.getElementById('staffDashboardView').style.display = 'block';
-                await loadAndRenderDashboard();
-            } else {
-                alert("Please enter both your staff username and password.");
-            }
-        }
-
-        function logoutStaff() {
-            document.getElementById('staffDashboardView').style.display = 'none';
-            document.getElementById('publicMainContent').style.display = 'block';
-            document.getElementById('staffUser').value = '';
-            document.getElementById('staffPass').value = '';
-        }
-
-        async function togglePayment(id, currentPaidState) {
-            try {
-                var response = await fetch('/api/orders/update', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: id, isPaid: !currentPaidState })
-                });
-                var data = await response.json();
-                if(data.success) renderDashboardData(data.orders);
-            } catch(e) { alert("Error updating payment."); }
-        }
-
-        async function markDone(id) {
-            try {
-                var response = await fetch('/api/orders/update', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: id, status: 'Done' })
-                });
-                var data = await response.json();
-                if(data.success) renderDashboardData(data.orders);
-            } catch(e) { alert("Error updating status."); }
-        }
-
-        async function deleteOrder(id) {
-            if(!confirm("Are you sure you want to remove this order?")) return;
-            try {
-                var response = await fetch('/api/orders/update', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: id, action: 'delete' })
-                });
-                var data = await response.json();
-                if(data.success) renderDashboardData(data.orders);
-            } catch(e) { alert("Error deleting order."); }
-        }
-
-        async function triggerAISearchForOrder(id, query, budget) {
-            alert("Deploying instant multi-platform AI scan across eBay, Amazon, Walmart, KSL, and Facebook...");
-            try {
-                var response = await fetch('/api/hunt-item', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ orderId: id, itemQuery: query, targetPrice: budget })
-                });
-                var data = await response.json();
-                if(data.success) {
-                    alert("AI search complete! Mainstream listing options generated.");
-                    await loadAndRenderDashboard();
-                } else {
-                    alert("AI Search failed.");
-                }
-            } catch (err) {
-                alert("Error connecting to server backend.");
-            }
-        }
-
-        async function loadAndRenderDashboard() {
-            try {
-                var response = await fetch('/api/orders');
-                var data = await response.json();
-                if(data.success) renderDashboardData(data.orders);
-            } catch(e) {}
-        }
-
-        function renderDashboardData(orders) {
-            var waitingMoney = 0, waitingCount = 0, doneMoney = 0, doneCount = 0;
-            orders.forEach(function(ord) {
-                var fee = parseInt(ord.fee) || 30;
-                if(ord.status === 'Waiting') { waitingMoney += fee; waitingCount++; }
-                else { doneMoney += fee; doneCount++; }
-            });
-            document.getElementById('statWaitingMoney').innerText = '$' + waitingMoney;
-            document.getElementById('statWaitingCount').innerText = waitingCount;
-            document.getElementById('statDoneMoney').innerText = '$' + doneMoney;
-            document.getElementById('statDoneCount').innerText = doneCount;
-
-            var tbody = document.getElementById('ordersTableBody');
-            if(!tbody) return;
-            if(orders.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #9ca3af; padding: 24px;">No customer orders logged yet.</td></tr>';
-                return;
-            }
-            tbody.innerHTML = orders.map(function(order) {
-                var linksHtml = '<span style="color:#9ca3af; font-size:12px;">Not generated yet</span>';
-                if (order.directLinks && order.directLinks.length > 0) {
-                    linksHtml = order.directLinks.map(function(l) {
-                        return '<div style="margin-bottom:6px;"><a href="' + l.url + '" target="_blank" style="color:#9ca3af; font-weight:600; text-decoration:underline; font-size:12px;">' + l.label + ' →</a></div>';
-                    }).join('');
-                }
-                return '<tr>' +
-                    '<td><strong style="color:#f9fafb;">' + order.name + '</strong><br><a href="tel:' + order.contact + '" style="color:#9ca3af; text-decoration:none; font-size:12px;">' + order.contact + '</a></td>' +
-                    '<td>' + order.query + ' (' + order.condition + ')<br><span style="color:#4ade80; font-size:12px;">Budget: ' + order.budget + '</span>' + (order.notes ? '<br><span style="color:#9ca3af; font-size:11px;">Notes: ' + order.notes + '</span>' : '') + '</td>' +
-                    '<td><strong>' + order.packageName + '</strong> ($' + order.fee + ')<br><button class="btn-action" style="margin-top:4px; background:' + (order.isPaid ? '#16a34a' : '#d97706') + '; color:#fff;" onclick="togglePayment(\'' + order.id + '\', ' + order.isPaid + ')">' + (order.isPaid ? '✓ Paid' : 'Pending Payment') + '</button></td>' +
-                    '<td><button class="btn-action" onclick="triggerAISearchForOrder(\'' + order.id + '\', \'' + order.query.replace(/'/g, "\\'") + '\', \'' + order.budget + '\')">🤖 Run AI Search</button><button class="btn-action" style="background:#0284c7;" onclick="markDone(\'' + order.id + '\')">Mark Done</button></td>' +
-                    '<td>' + linksHtml + '<button class="btn-action" style="background:#7f1d1d; margin-top:6px;" onclick="deleteOrder(\'' + order.id + '\')">Remove</button></td>' +
-                    '</tr>';
-            }).join('');
-        }
-
-        // Safe Event Listeners Binding (Guaranteed execution on load)
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('logoHomeBtn').addEventListener('click', goHome);
-            document.getElementById('staffPortalBtn').addEventListener('click', openPinModal);
-            document.getElementById('cardStandard').addEventListener('click', function() { selectPackage('Standard', 30); });
-            document.getElementById('cardPriority').addEventListener('click', function() { selectPackage('Priority', 50); });
-            document.getElementById('submitRequestBtn').addEventListener('click', initiateCheckout);
-            document.getElementById('resetHomeBtn').addEventListener('click', resetToHome);
-            document.getElementById('confirmVenmoBtn').addEventListener('click', confirmPaymentAndSubmit);
-            document.getElementById('cancelVenmoBtn').addEventListener('click', closeModals);
-            document.getElementById('logoutStaffBtn').addEventListener('click', logoutStaff);
-            document.getElementById('submitPinBtn').addEventListener('click', verifyPin);
-            document.getElementById('cancelPinBtn').addEventListener('click', closeModals);
-            document.getElementById('submitLoginBtn').addEventListener('click', verifyStaffLogin);
-            document.getElementById('cancelLoginBtn').addEventListener('click', closeModals);
-
-            document.getElementById('gatePin').addEventListener('keydown', function(e) {
-                if(e.key === 'Enter') verifyPin();
-            });
-            document.getElementById('staffPass').addEventListener('keydown', function(e) {
-                if(e.key === 'Enter') verifyStaffLogin();
-            });
-        });
-    </script>
-</body>
-</html>
