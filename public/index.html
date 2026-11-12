@@ -7,8 +7,8 @@
     <style>
         :root {
             --bg-deep: #060913;
-            --bg-glass: rgba(11, 15, 25, 0.7);
-            --border-glass: rgba(255, 255, 255, 0.1);
+            --bg-glass: rgba(17, 24, 39, 0.7);
+            --border-glass: rgba(255, 255, 255, 0.12);
             --accent-green: #10b981;
             --accent-green-hover: #059669;
             --text-main: #f9fafb;
@@ -16,37 +16,37 @@
         }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg-deep); color: var(--text-main); margin: 0; padding: 0; box-sizing: border-box; background-image: radial-gradient(circle at 50% 0%, #111e38 0%, #060913 70%); min-height: 100vh; scroll-behavior: smooth; }
         
-        /* Liquid Glass Sticky Header */
-        header { position: sticky; top: 0; z-index: 1000; background: rgba(6, 9, 19, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: flex; justify-content: space-between; align-items: center; padding: 16px 36px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .logo-area { display: flex; align-items: center; gap: 12px; cursor: pointer; }
-        .logo-icon { background: rgba(255,255,255,0.06); color: var(--accent-green); padding: 8px 12px; border-radius: 10px; font-weight: bold; font-size: 14px; border: 1px solid var(--border-glass); }
-        .logo-text h1 { margin: 0; font-size: 18px; color: var(--text-main); font-weight: 700; letter-spacing: -0.01em; }
-        .logo-text span { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.15em; font-weight: bold; }
+        /* Floating Pill Liquid Glass Header */
+        header { position: sticky; top: 16px; z-index: 1000; max-width: 900px; margin: 0 auto; background: rgba(11, 15, 25, 0.55); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); display: flex; justify-content: space-between; align-items: center; padding: 12px 28px; border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 15px 35px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2); }
+        .logo-area { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .logo-icon { background: rgba(255,255,255,0.08); color: var(--accent-green); padding: 7px 10px; border-radius: 12px; font-weight: bold; font-size: 13px; border: 1px solid var(--border-glass); }
+        .logo-text h1 { margin: 0; font-size: 16px; color: var(--text-main); font-weight: 700; letter-spacing: -0.01em; }
+        .logo-text span { font-size: 8px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.15em; font-weight: bold; }
         
-        .nav-right { display: flex; align-items: center; gap: 16px; }
-        .btn-nav-text { background: transparent; border: none; color: var(--text-muted); font-size: 14px; font-weight: 600; cursor: pointer; padding: 8px 12px; transition: color 0.2s; }
+        .nav-right { display: flex; align-items: center; gap: 12px; }
+        .btn-nav-text { background: transparent; border: none; color: var(--text-muted); font-size: 13px; font-weight: 600; cursor: pointer; padding: 6px 10px; transition: color 0.2s; }
         .btn-nav-text:hover { color: var(--text-main); }
-        .btn-started { background: var(--accent-green); color: #fff; border: none; padding: 10px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.1s; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35); }
+        .btn-started { background: var(--accent-green); color: #fff; border: none; padding: 8px 18px; border-radius: 30px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.1s; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35); }
         .btn-started:hover { background: var(--accent-green-hover); transform: translateY(-1px); }
 
         /* Hero Section */
-        .hero { text-align: center; padding: 70px 16px 40px; max-width: 900px; margin: 0 auto; }
-        .hero h2 { font-size: 56px; font-weight: 800; margin: 0 0 20px 0; color: var(--text-main); line-height: 1.1; letter-spacing: -0.03em; }
+        .hero { text-align: center; padding: 60px 16px 30px; max-width: 900px; margin: 0 auto; }
+        .hero h2 { font-size: 52px; font-weight: 800; margin: 0 0 20px 0; color: var(--text-main); line-height: 1.1; letter-spacing: -0.03em; }
         .hero h2 span { color: var(--accent-green); }
-        .hero p { font-size: 17px; color: var(--text-muted); line-height: 1.6; max-width: 720px; margin: 0 auto 35px; }
+        .hero p { font-size: 17px; color: var(--text-muted); line-height: 1.6; max-width: 760px; margin: 0 auto 30px; }
 
-        /* Mockup Search Bar Pill Row (from reference image) */
-        .hero-search-mockup { max-width: 680px; margin: 0 auto 30px; background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(12px); border: 1px solid var(--border-glass); padding: 10px 14px; border-radius: 50px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        /* Reference Style Search Bar Mockup */
+        .hero-search-mockup { max-width: 680px; margin: 0 auto 25px; background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(12px); border: 1px solid var(--border-glass); padding: 10px 14px; border-radius: 50px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .hero-search-mockup span { color: var(--text-muted); font-size: 14px; padding-left: 10px; }
         .mockup-search-btn { background: var(--accent-green); color: #fff; border: none; padding: 10px 20px; border-radius: 30px; font-weight: 600; font-size: 13px; cursor: pointer; }
 
         /* Marketplace Logo Pill Bar */
-        .marketplace-bar { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 50px; padding: 0 16px; }
-        .mp-pill { background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); padding: 8px 16px; border-radius: 20px; font-size: 12px; color: var(--text-muted); font-weight: 600; }
+        .marketplace-bar { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 45px; padding: 0 16px; }
+        .mp-pill { background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); padding: 7px 15px; border-radius: 20px; font-size: 12px; color: var(--text-muted); font-weight: 600; }
 
         /* Expanded Pitch Section */
-        .pitch-section { max-width: 900px; margin: 0 auto 60px; padding: 0 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .pitch-card { background: var(--bg-glass); backdrop-filter: blur(16px); border: 1px solid var(--border-glass); padding: 28px 24px; border-radius: 16px; text-align: left; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .pitch-section { max-width: 900px; margin: 0 auto 50px; padding: 0 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .pitch-card { background: var(--bg-glass); backdrop-filter: blur(16px); border: 1px solid var(--border-glass); padding: 26px 22px; border-radius: 16px; text-align: left; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
         .pitch-card h3 { font-size: 16px; color: var(--text-main); margin-top: 0; margin-bottom: 8px; }
         .pitch-card p { font-size: 13px; color: var(--text-muted); margin: 0; line-height: 1.5; }
 
@@ -85,6 +85,7 @@
         .btn-action:hover { background: #4b5563; }
 
         @media (max-width: 768px) {
+            header { margin: 10px 16px; padding: 10px 20px; }
             .hero h2 { font-size: 34px; }
             .pitch-section { grid-template-columns: 1fr; }
             .form-row { grid-template-columns: 1fr; gap: 0; }
@@ -96,7 +97,7 @@
 </head>
 <body>
 
-    <!-- Liquid Glass Header -->
+    <!-- Floating Pill Liquid Glass Header -->
     <header>
         <div class="logo-area" id="logoHomeBtn">
             <div class="logo-icon">AI</div>
@@ -107,15 +108,15 @@
         </div>
         <div class="nav-right">
             <button class="btn-nav-text" id="staffPortalBtn">Staff Portal</button>
-            <button class="btn-started" id="getStartedTopBtn">Get Started →</button>
+            <button class="btn-started" id="topRightActionBtn">Get Started →</button>
         </div>
     </header>
 
     <div id="publicMainContent">
-        <!-- Hero Section -->
+        <!-- Hero Section with Expanded Sales Pitch -->
         <div class="hero">
             <h2>For people who don’t have time<br><span>to search on their own.</span></h2>
-            <p>An elite AI-powered sourcing service for rare, discontinued, and hard-to-find products. We scour Amazon, eBay, Walmart, KSL, and local inventories so you don't have to—handled with absolute precision.</p>
+            <p>Welcome to ItemHunter AI, your elite private sourcing concierge. In today's fast-paced world, tracking down rare vintage gear, discontinued auto parts, collector editions, or hard-to-find household items across dozens of fragmented online marketplaces can consume hours of your valuable week. We automate that entire headache—combining advanced neural web scrapers with meticulous human broker verification to hunt down exact matches, negotiate safety parameters, and deliver direct, verified purchase links straight to you with absolute precision.</p>
             
             <!-- Reference Style Search Bar Mockup -->
             <div class="hero-search-mockup">
@@ -139,15 +140,15 @@
         <div class="pitch-section">
             <div class="pitch-card">
                 <h3>⚡ Lightning Fast Scrapes</h3>
-                <p>Skip spending hours refreshing online listings. Our engine queries multi-platform databases in seconds.</p>
+                <p>Skip spending hours refreshing online listings or driving store-to-store. Our engine queries multi-platform databases in seconds.</p>
             </div>
             <div class="pitch-card">
                 <h3>🎯 Precision Matching</h3>
-                <p>Filter strictly by your exact color specs, year models, maximum budget, and acceptable item conditions.</p>
+                <p>Filter strictly by your exact color specs, year models, maximum budget, and acceptable item conditions without wading through junk.</p>
             </div>
             <div class="pitch-card">
                 <h3>🔒 Secure & Verified</h3>
-                <p>Every direct listing link is manually verified by our team so you avoid scams and dead-end postings.</p>
+                <p>Every direct listing link is manually verified by our concierge brokers so you completely avoid online scams and dead-end postings.</p>
             </div>
         </div>
 
@@ -310,11 +311,25 @@
             document.getElementById('publicMainContent').style.display = 'block';
             document.getElementById('thankYouSection').style.display = 'none';
             document.getElementById('requestFormSection').style.display = 'block';
+            document.getElementById('topRightActionBtn').innerText = 'Get Started →';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function scrollToForm() {
+            if (document.getElementById('staffDashboardView').style.display === 'block') {
+                goHome();
+                return;
+            }
             document.getElementById('requestFormSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function handleTopRightAction() {
+            var btnText = document.getElementById('topRightActionBtn').innerText;
+            if (btnText.includes('Home') || document.getElementById('staffDashboardView').style.display === 'block') {
+                goHome();
+            } else {
+                scrollToForm();
+            }
         }
 
         function selectPackage(name, fee) {
@@ -431,7 +446,7 @@
                 document.getElementById('publicMainContent').style.display = 'none';
                 document.getElementById('loggedUserDisplay').innerText = user;
                 document.getElementById('staffDashboardView').style.display = 'block';
-                await loadAndRenderDashboard();
+                document.getElementById('topRightActionBtn').innerText = 'Home ⌂';
             } else {
                 alert("Please enter both your staff username and password.");
             }
@@ -442,6 +457,7 @@
             document.getElementById('publicMainContent').style.display = 'block';
             document.getElementById('staffUser').value = '';
             document.getElementById('staffPass').value = '';
+            document.getElementById('topRightActionBtn').innerText = 'Get Started →';
         }
 
         async function togglePayment(id, currentPaidState) {
@@ -548,7 +564,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('logoHomeBtn').addEventListener('click', goHome);
             document.getElementById('staffPortalBtn').addEventListener('click', openPinModal);
-            document.getElementById('getStartedTopBtn').addEventListener('click', scrollToForm);
+            document.getElementById('topRightActionBtn').addEventListener('click', handleTopRightAction);
             document.getElementById('mockupSearchBtn').addEventListener('click', scrollToForm);
             document.getElementById('cardStandard').addEventListener('click', function() { selectPackage('Standard', 30); });
             document.getElementById('cardPriority').addEventListener('click', function() { selectPackage('Priority', 50); });
