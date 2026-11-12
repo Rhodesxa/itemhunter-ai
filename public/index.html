@@ -14,7 +14,7 @@
             --text-muted: #94a3b8;
         }
         
-        /* Atmospheric Glowing Background with Mountain Landscape Silhouette for Mobile & Desktop */
+        /* Atmospheric Starry Sky & Glowing Nebula Background */
         body { 
             font-family: 'Segoe UI', sans-serif; 
             color: var(--text-main); 
@@ -25,24 +25,25 @@
             scroll-behavior: smooth;
             background-color: #030712;
             background-image: 
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 800 800'%3E%3Cg fill='%23ffffff' opacity='0.7'%3E%3Ccircle cx='50' cy='50' r='1.2'/%3E%3Ccircle cx='200' cy='120' r='1.8'/%3E%3Ccircle cx='350' cy='80' r='1'/%3E%3Ccircle cx='500' cy='150' r='1.4'/%3E%3Ccircle cx='650' cy='90' r='1.2'/%3E%3Ccircle cx='750' cy='200' r='1.8'/%3E%3Ccircle cx='120' cy='250' r='1'/%3E%3Ccircle cx='280' cy='320' r='1.5'/%3E%3Ccircle cx='450' cy='280' r='1.2'/%3E%3Ccircle cx='600' cy='350' r='1.8'/%3E%3Ccircle cx='720' cy='300' r='1'/%3E%3Ccircle cx='90' cy='450' r='1.4'/%3E%3Ccircle cx='220' cy='520' r='1.1'/%3E%3Ccircle cx='380' cy='480' r='1.8'/%3E%3Ccircle cx='550' cy='550' r='1'/%3E%3Ccircle cx='700' cy='490' r='1.3'/%3E%3Ccircle cx='150' cy='650' r='1.2'/%3E%3Ccircle cx='320' cy='700' r='1.8'/%3E%3Ccircle cx='480' cy='650' r='1'/%3E%3Ccircle cx='620' cy='720' r='1.4'/%3E%3C/g%3E%3C/svg%3E"),
                 radial-gradient(circle at 50% 30%, rgba(16, 185, 129, 0.22) 0%, transparent 60%),
                 radial-gradient(circle at 10% 10%, rgba(14, 116, 144, 0.35) 0%, transparent 50%),
                 radial-gradient(circle at 90% 20%, rgba(59, 130, 246, 0.28) 0%, transparent 55%),
                 linear-gradient(to bottom, #020617 0%, #090d22 50%, #030712 100%);
+            background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat;
             position: relative;
             overflow-x: hidden;
         }
 
-        /* Mountain Landscape Silhouette Layers */
+        /* Pinned Noticeable Mountain Landscape Silhouette Layers */
         body::before {
             content: "";
-            position: absolute;
+            position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 45vh;
-            background: linear-gradient(to top, rgba(3, 7, 18, 0.95), transparent),
-                        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 400' preserveAspectRatio='none'%3E%3Cpath d='M0,350 L150,220 L300,280 L480,140 L650,260 L850,110 L1020,230 L1200,160 L1200,400 L0,400 Z' fill='%23050914' opacity='0.8'/%3E%3Cpath d='M0,380 L200,280 L380,330 L550,210 L750,320 L950,190 L1200,290 L1200,400 L0,400 Z' fill='%23030712' opacity='0.98'/%3E%3C/svg%3E");
+            height: 35vh;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 400' preserveAspectRatio='none'%3E%3Cpath d='M0,350 L150,200 L300,260 L450,120 L620,240 L800,90 L980,210 L1200,130 L1200,400 L0,400 Z' fill='%230a1428' opacity='0.95'/%3E%3Cpath d='M0,380 L180,260 L350,310 L520,180 L720,290 L920,160 L1200,270 L1200,400 L0,400 Z' fill='%23040814' opacity='1'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: bottom;
             background-size: cover;
@@ -50,7 +51,7 @@
             z-index: -1;
         }
         
-        /* Floating Pill Liquid Glass Header optimized for Mobile */
+        /* Floating Pill Liquid Glass Header */
         header { position: sticky; top: 12px; z-index: 1000; max-width: 900px; margin: 0 12px; background: rgba(11, 18, 32, 0.75); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); display: flex; justify-content: space-between; align-items: center; padding: 10px 18px; border-radius: 40px; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.3); }
         @media(min-width: 924px) { header { margin: 16px auto; } }
 
